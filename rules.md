@@ -11,6 +11,8 @@
 | [easylist.NOTICE.txt](https://privacy.link2us.link/rules/easylist.NOTICE.txt) | 姓名標示與上游著作權通知 |
 | [easyprivacy.json](https://privacy.link2us.link/rules/easyprivacy.json) | EasyPrivacy 的 content blocker 改作版 |
 | [easyprivacy.NOTICE.txt](https://privacy.link2us.link/rules/easyprivacy.NOTICE.txt) | 同上 |
+| [easylist.json.sig](https://privacy.link2us.link/rules/easylist.json.sig) | Ed25519 簽章(App 端驗證用) |
+| [easyprivacy.json.sig](https://privacy.link2us.link/rules/easyprivacy.json.sig) | 同上 |
 
 ## 這是什麼
 
@@ -40,6 +42,21 @@
 
 **授權範圍僅限 `rules/` 目錄**;本站其餘內容(隱私政策等)版權保留。
 
+## 完整性驗證
+
+規則檔以 Ed25519 簽章(`.sig` 為 base64 的 64-byte raw 簽章),
+Vigatamala App 內嵌對應公鑰,鏡像來源必須驗簽通過才會被採用。
+
 ## 怎麼重現
 
-`rules/converter/` 附上了完整的轉換器與建置腳本。
+`rules/converter/` 是可獨立建置的轉換器(與 App 內用的是同一份原始碼,
+同一份輸入產出位元組相同的輸出):
+
+```bash
+cd rules/converter
+swift build -c release
+.build/release/RuleConverter <輸入.txt> <輸出.json> 45000
+```
+
+本 repo 的規則由 GitHub Actions 每日自動同步(見 `.github/workflows/`),
+用的正是這份轉換器。

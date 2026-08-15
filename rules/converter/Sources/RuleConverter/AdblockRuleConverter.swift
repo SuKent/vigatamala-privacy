@@ -140,6 +140,14 @@ public enum AdblockRuleConverter {
         let limit: Int
 
         var blocking: [ContentBlockerRule] = []
+        /// 與 `blocking` 平行:每條阻擋規則來自哪一行。
+        ///
+        /// 上限現在在 `finish()` 才套用,那時已經看不到原始行了。少了這份,
+        /// 「哪些規則因為超過上限被丟掉」這個診斷會退化成一個數字 ——
+        /// 而那正是調上限時唯一有用的資訊。
+        /// 代價是每條規則多一個字串(45,000 條約 1.4 MB),相對於 5.5 MB 的
+        /// 輸出可以接受。
+        var blockingSources: [String] = []
         var exceptions: [ContentBlockerRule] = []
         var cosmeticOrder: [CosmeticKey] = []
         var cosmeticSelectors: [CosmeticKey: [String]] = [:]
@@ -162,13 +170,19 @@ public enum AdblockRuleConverter {
             }
         }
 
-        /// 佔一個名額。回傳 false 代表已達上限,呼叫端要放棄這條。
+        /// 記憶體上的絕對天花板 —— **不是**規則數上限。
+        ///
+        /// 真正的上限在 `finish()` 才套用,而且只砍阻擋規則(見那裡的說明)。
+        /// 這裡留一個寬鬆的硬界線,是為了不讓惡意或損毀的輸入把記憶體吃光
+        /// (實測:攔截式網路的登入頁也會被轉出合法規則)。
+        var absoluteCeiling: Int { max(limit * 4, 200_000) }
+
+        /// 收下這一條。回傳 false 只代表撞到記憶體天花板,正常情況永遠是 true。
         mutating func reserveSlot(_ filter: String) -> Bool {
-            guard acceptedCount < limit else {
+            guard blocking.count + exceptions.count < absoluteCeiling else {
                 skip(filter, SkipReason.limitReached)
                 return false
             }
-            acceptedCount += 1
             return true
         }
 
@@ -340,14 +354,28 @@ public enum AdblockRuleConverter {
                 exceptions.append(rule)
             } else {
                 blocking.append(rule)
+                blockingSources.append(line)
             }
         }
 
         // MARK: 收尾
 
+        /// 收尾:在這裡才套用規則數上限。
+        ///
+        /// 【為什麼不在累積時擋】
+        /// 先前是每收一條就 `acceptedCount += 1`,額滿即丟後面全部。
+        /// 而 `@@` 例外規則在上游清單裡**集中在檔尾**(EasyList 第一條例外在
+        /// 第 66,805 行 / 共 78,907 行),上限在讀到那裡之前就用完了 ——
+        /// 實測出貨的 easylist.json 有 **0 條**例外(上游 758 條)、
+        /// easyprivacy.json 只有 2 條(上游 834 條)。
+        ///
+        /// 例外規則的用途正是「這個別擋,擋了會壞」。整批丟掉的後果是站台破圖,
+        /// 而且是靜默的 —— 我們出貨的等於是拆掉安全網的 EasyList。
+        ///
+        /// 所以:例外與外觀規則先佔位,上限只砍**阻擋規則**的尾巴。
+        /// 阻擋規則的尾端是長尾網域,少幾條的代價遠小於少一條例外。
         func finish() -> ConversionResult {
-            var rules = blocking
-
+            var cosmeticRules: [ContentBlockerRule] = []
             for key in cosmeticOrder {
                 guard let selectors = cosmeticSelectors[key], !selectors.isEmpty else { continue }
                 for chunk in selectors.vgmChunked(into: AdblockRuleConverter.maxSelectorsPerRule) {
@@ -356,7 +384,7 @@ public enum AdblockRuleConverter {
                         ifDomain: key.ifDomain.isEmpty ? nil : key.ifDomain,
                         unlessDomain: key.unlessDomain.isEmpty ? nil : key.unlessDomain
                     )
-                    rules.append(
+                    cosmeticRules.append(
                         ContentBlockerRule(
                             trigger: trigger,
                             action: ContentBlockerRule.Action(
@@ -368,15 +396,36 @@ public enum AdblockRuleConverter {
                 }
             }
 
+            // 例外與外觀規則先佔名額,剩下的才給阻擋規則。
+            let reserved = exceptions.count + cosmeticRules.count
+            let blockingBudget = max(0, limit - reserved)
+            let keptBlocking = blocking.prefix(blockingBudget)
+            let droppedBlocking = blocking.count - keptBlocking.count
+
+            var rules = Array(keptBlocking)
+            rules.append(contentsOf: cosmeticRules)
             // 例外一定放最後:`ignore-previous-rules` 只解得掉排在它前面的規則。
             rules.append(contentsOf: exceptions)
 
-            return ConversionResult(
+            var result = ConversionResult(
                 rules: rules,
-                acceptedCount: acceptedCount,
-                skippedCount: skippedCount,
+                // 回報**實際輸出的規則數**,不是消耗掉的 filter 數。
+                // 先前兩者相差 18%(顯示 90,000、實際掛上 76,443),
+                // 而這個數字是使用者判斷「更新成功了沒」的唯一訊號。
+                acceptedCount: rules.count,
+                skippedCount: skippedCount + droppedBlocking,
                 skipped: skipped
             )
+            // 被上限砍掉的那些,逐條記進 skipped 樣本(上限內)。
+            if droppedBlocking > 0 {
+                for source in blockingSources[keptBlocking.count...] {
+                    guard result.skipped.count < AdblockRuleConverter.skippedSampleCap else { break }
+                    result.skipped.append(
+                        SkippedFilter(filter: source, reason: SkipReason.limitReached)
+                    )
+                }
+            }
+            return result
         }
     }
 

@@ -1,5 +1,4 @@
 import Foundation
-import VigatamalaCore
 
 // 建置期規則轉換器。
 //
