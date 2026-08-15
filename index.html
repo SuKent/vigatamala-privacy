@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>載入中...</title>
+  
+  <!-- GitHub 官方 Markdown 樣式庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css">
+  <!-- 程式碼高亮樣式 (Highlight.js) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+  <style>
+    body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 45px 20px;
+      background-color: #ffffff;
+    }
+
+    /* 跟隨系統自動切換深色模式 */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #0d1117;
+      }
+    }
+
+    #loading {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: #6e7781;
+      text-align: center;
+      padding: 60px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body class="markdown-body">
+  <div id="content">
+    <div id="loading">載入內容中，請稍候...</div>
+  </div>
+
+  <!-- Markdown 解析庫 (Marked.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <!-- 程式碼語法高亮庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <script>
+    async function fetchAndRenderMarkdown() {
+      const contentDiv = document.getElementById('content');
+      try {
+        // 抓取同目錄下的 index.md（加上時間戳記防止瀏覽器快取）
+        const response = await fetch(`./index.md?t=${new Date().getTime()}`);
+        
+        if (!response.ok) {
+          throw new Error(`找不到檔案或 HTTP 錯誤 (${response.status})`);
+        }
+
+        const markdownText = await response.text();
+
+        // 設定 Marked 與語法高亮
+        marked.setOptions({
+          gfm: true,
+          breaks: true,
+          highlight: function(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+          }
+        });
+
+        // 解析 Markdown 並放入頁面
+        contentDiv.innerHTML = marked.parse(markdownText);
+
+        // 如果 Markdown 裡有 <h1>，將它設為網頁標題
+        const firstHeading = contentDiv.querySelector('h1');
+        if (firstHeading) {
+          document.title = firstHeading.innerText;
+        } else {
+          document.title = "文件瀏覽";
+        }
+
+      } catch (error) {
+        contentDiv.innerHTML = `
+          <div style="color: #cf222e; padding: 20px; border: 1px solid #ff8182; border-radius: 6px; background-color: #ffebe9;">
+            <h3 style="margin-top:0;">載入失敗</h3>
+            <p>無法讀取 <code>index.md</code>：${error.message}</p>
+            <p>請確認 GitHub 根目錄下是否存在 <code>index.md</code> 檔案。</p>
+          </div>
+        `;
+      }
+    }
+
+    fetchAndRenderMarkdown();
+  </script>
+</body>
+</html>
