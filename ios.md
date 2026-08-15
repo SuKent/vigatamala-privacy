@@ -174,9 +174,9 @@ Global Privacy Control 訊號只有全域開關(它是一個對所有網站一�
 
 ## 9. 聯絡我們
 
-有任何疑問請寄到:**[vigatamala@link2us.link]**
+有任何疑問請寄到:**vigatamala@link2us.link**
 
-開發者:**[神農工作室]**
+開發者:**神農工作室**
 
 ---
 ---
@@ -307,4 +307,4 @@ collected will change. We will update this policy and notify you in the app.
 
 ## 9. Contact
 
-**[vigatamala@link2us.link]** — **[SanLong Studio]**
+**vigatamala@link2us.link** — **SanLong Studio**
