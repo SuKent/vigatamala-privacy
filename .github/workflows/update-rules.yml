@@ -22,7 +22,7 @@ jobs:
         # 在 checkout 之前裝 git —— 沒有 git 時 checkout 會退化成 REST 下載,
         # 沒有 .git 就推不回去。
         run: apt-get update -qq && apt-get install -y -qq git curl openssl ca-certificates
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: 讓 git 信任容器內的工作目錄
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: 下載、轉換、簽章
