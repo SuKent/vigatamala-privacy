@@ -1,0 +1,29 @@
+本目錄(rules/)內的檔案為 EasyList 與 EasyPrivacy 的改作物,
+依 Creative Commons Attribution-ShareAlike 3.0 Unported 授權散布。
+
+  授權全文:https://creativecommons.org/licenses/by-sa/3.0/legalcode
+  授權摘要:https://creativecommons.org/licenses/by-sa/3.0/
+
+原作品姓名標示:The EasyList authors (https://easylist.to/)
+
+converter/ 內的轉換器原始碼版權屬 Vigatamala,同樣以 CC BY-SA 3.0 Unported
+提供,以免下游對可否重用產生疑義。
+
+【範圍】本授權**僅適用於 rules/ 目錄**。
+本 repo 其餘內容(隱私政策、支援頁、站台程式)不在此授權範圍內,
+版權保留。
+
+---
+
+The files in this directory (rules/) are adaptations of EasyList and
+EasyPrivacy, distributed under the Creative Commons Attribution-ShareAlike
+3.0 Unported licence.
+
+  Legal code: https://creativecommons.org/licenses/by-sa/3.0/legalcode
+  Deed:       https://creativecommons.org/licenses/by-sa/3.0/
+
+Attribution: The EasyList authors (https://easylist.to/)
+
+SCOPE: This licence applies ONLY to the rules/ directory. The rest of this
+repository (privacy policy, support pages, site code) is not covered and
+all rights are reserved.
