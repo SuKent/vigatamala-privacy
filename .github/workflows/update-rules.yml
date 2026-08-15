@@ -1,0 +1,45 @@
+# 每日同步阻擋規則:抓上游 → 轉換 → 簽章 → 規則真的有變才 commit。
+#
+# 簽章私鑰放在 repo Settings → Secrets → Actions 的 RULES_SIGNING_KEY
+# (PKCS#8 PEM 全文)。沒設定時規則照樣更新、只是不簽 —— App 端會驗簽
+# 失敗並退回上游來源,功能不中斷。
+name: 更新阻擋規則
+
+on:
+  schedule:
+    - cron: "30 21 * * *"   # 每日 21:30 UTC = 台北 05:30
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    container: swift:6.1
+    steps:
+      - name: 安裝工具
+        # 在 checkout 之前裝 git —— 沒有 git 時 checkout 會退化成 REST 下載,
+        # 沒有 .git 就推不回去。
+        run: apt-get update -qq && apt-get install -y -qq git curl openssl ca-certificates
+      - uses: actions/checkout@v4
+      - name: 讓 git 信任容器內的工作目錄
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: 下載、轉換、簽章
+        env:
+          RULES_SIGNING_KEY: ${{ secrets.RULES_SIGNING_KEY }}
+        run: bash rules/converter/update.sh
+      - name: 規則真的有變才 commit
+        # NOTICE 的版本號每天都會動;只有 .json 變了才值得一個 commit,
+        # 否則 git 歷史會塞滿只改了時間戳的雜訊。
+        run: |
+          git config user.name "rules-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add rules
+          if git diff --cached --name-only | grep -q '\.json$'; then
+            git commit -m "規則自動更新 $(date -u +%F)"
+            git push
+          else
+            echo "規則無變更,不提交"
+            git reset -q
+          fi
