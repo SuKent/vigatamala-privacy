@@ -16,9 +16,17 @@ echo "→ 建置轉換器"
 swift build --package-path "$CONV" -c release
 BIN="$(swift build --package-path "$CONV" -c release --show-bin-path)/RuleConverter"
 
+# 【簽章金鑰是必要的,缺了就直接失敗】
+# 略過簽章會產出「新 .json 配舊 .sig」—— App 驗簽必然失敗、鏡像整個失效,
+# 而且從 commit 紀錄看起來一切正常。失敗要吵,不要靜默地把鏡像弄壞。
+# (workflow 失敗時 GitHub 會寄通知,這正是我們要的。)
+[ -n "${RULES_SIGNING_KEY:-}" ] || {
+  echo "✘ 未設定 RULES_SIGNING_KEY(repo Settings → Secrets → Actions)。"
+  echo "  鏡像的價值就在簽章 —— 不簽等於白更新,拒絕執行。"
+  exit 1
+}
+
 sign() {
-  # 沒設定金鑰就略過 —— App 會驗簽失敗、退回上游,不會壞,只是少了鏡像的好處。
-  [ -n "${RULES_SIGNING_KEY:-}" ] || { echo "  (未設定 RULES_SIGNING_KEY,略過簽章)"; return 0; }
   printf '%s\n' "$RULES_SIGNING_KEY" > "$TMP/key.pem"
   openssl pkeyutl -sign -inkey "$TMP/key.pem" -rawin -in "$1" -out "$TMP/sig.bin"
   base64 -w0 "$TMP/sig.bin" > "$1.sig"
