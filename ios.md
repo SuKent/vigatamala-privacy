@@ -1,6 +1,6 @@
 # Vigatamala 隱私政策
 
-**最後更新:2026-08-15**
+**最後更新:2026-08-17**
 **適用對象:Vigatamala for iOS**
 
 *English version below — [jump to English](#privacy-policy-english).*
@@ -21,8 +21,9 @@
 
 ## 1. 我們收不到的東西
 
-- **沒有我們的伺服器會收到你的資料。** 目前 App 完全沒有連向我們的後端 ——
-  因為那個後端還不存在。
+- **我們沒有帳號後端,也收不到你的瀏覽資料。** App 唯一會連向我們網域的,是
+  下載阻擋規則清單的那條請求(見第 3 節第 (1) 項)—— 它只帶要下載的檔名,
+  不帶你造訪過的網址,也不帶帳號或裝置識別碼。除此之外沒有任何連向我們的連線。
 - **沒有任何第三方軟體套件。** 沒有 Google Analytics、Firebase、Crashlytics、
   Sentry,也沒有廣告聯播網。
 - **沒有廣告識別碼(IDFA)**,不會跳出「允許追蹤」的要求。
@@ -70,13 +71,28 @@
 
 除了你主動瀏覽的網頁之外,App 自己只發出這幾種連線:
 
-**(1) 阻擋規則更新 → `easylist.to`**
-下載 EasyList 與 EasyPrivacy 的公開規則清單。請求裡不含你造訪過的網址,
-我們也不附加任何帳號或裝置識別碼,而且這條連線使用獨立的網路設定
-(不帶 cookie、不寫快取)。與任何網路請求一樣,對方仍然看得到你的 IP 位址 ——
-那是連線本身無法避免的,我們沒辦法代你隱藏。
-屬訂閱功能,可在設定中關閉。自動更新最快 24 小時一次;你也可以在設定裡
-手動觸發「立即更新」。
+**(1) 阻擋規則清單下載/更新 → `privacy.link2us.link`(退路:`easylist.to`)**
+EasyList 與 EasyPrivacy 這兩份大型公開清單**不隨 App 打包**,要由你自己下載。
+預設從我們的鏡像 `https://privacy.link2us.link/rules/` 取得已預先轉換並簽章的
+版本(裝置端驗簽);鏡像不可用時才退回上游 `easylist.to` 抓原始清單、
+在你的裝置上轉換。
+
+**什麼時候會下載**:首次啟動時問你一次(可選「稍後」);設定 →「內容阻擋」
+裡隨時可以按「下載清單」。**這兩者都不需要訂閱。**訂閱的是「自動更新規則」
+(預設關閉):開啟後 App 才會在啟動時自動檢查更新,最快 24 小時一次。
+
+**這條請求裡有什麼**:只有要下載的檔名。不含你造訪過的網址,不附加任何帳號或
+裝置識別碼,並使用獨立的網路設定(不帶 cookie、不寫快取)。唯一額外的標頭是
+`If-None-Match` —— 上次下載時伺服器給的檔案版本標記,用來在內容沒變時省下重抓;
+它對應的是那份檔案而不是你,拿到同一份清單的人都是同一個值。
+
+**我們這端會收到什麼**:這是整份政策裡唯一一條連向我們自己網域的請求,所以要
+講清楚。和任何網頁伺服器一樣,連線本身會帶著你的 IP 位址、瀏覽器識別字串、時間
+與請求的檔名。那個網域只是靜態檔案託管(Cloudflare),我們沒有在上面放自己的
+程式碼,**也沒有把逐筆存取紀錄匯出或保存到任何地方**;我們看得到的只有服務商的
+彙總流量統計(總請求數、快取命中率之類),裡面沒有個別使用者。IP 位址仍會被
+服務商在傳送與防濫用的過程中處理,那是連線本身無法避免的。退回上游
+`easylist.to` 時,看到你 IP 的是 EasyList 的基礎設施(第三方),不在我們手上。
 
 **(2) 鎖定畫面的封面圖 → 該網頁指定的圖片來源**
 播放媒體時,鎖定畫面要顯示封面。那張圖的網址來自網頁自己的 metadata,
@@ -185,7 +201,7 @@ Global Privacy Control 訊號只有全域開關(它是一個對所有網站一�
 
 # Privacy Policy (English)
 
-**Last updated: 15 August 2026**
+**Last updated: 17 August 2026**
 **Applies to: Vigatamala for iOS**
 
 ## In short
@@ -198,8 +214,10 @@ Which sites you visit, what you watch and what you search for stay on your iPhon
 
 ## 1. What we cannot receive
 
-- **No server of ours receives your data.** The app makes no connection to a
-  backend of ours, because that backend does not exist yet.
+- **We have no account backend and receive none of your browsing data.** The only
+  request the app makes to a domain of ours is to download blocking rule lists
+  (see section 3, item 1). It carries the filename being requested — no URL you
+  visited, no account or device identifier. Nothing else connects to us.
 - **No third-party SDKs** — no Google Analytics, Firebase, Crashlytics, Sentry
   or ad networks.
 - **No advertising identifier (IDFA)** and no tracking permission prompt.
@@ -235,11 +253,34 @@ Note that search terms persist as part of the search URL recorded in history.
 
 ## 3. Outbound connections the app makes
 
-1. **Blocking rule updates → `easylist.to`.** Public EasyList/EasyPrivacy lists.
-   The request contains no URL you visited and no account or device identifier,
-   and uses an isolated network configuration with no cookies and no cache.
-   Subscription feature; can be switched off. Automatic updates run at most once
-   per 24 hours; you can also trigger an update manually in Settings.
+1. **Blocking rule downloads/updates → `privacy.link2us.link` (fallback:
+   `easylist.to`).** The large public EasyList/EasyPrivacy lists are **not bundled
+   with the app**; you download them yourself. By default they come from our mirror
+   at `https://privacy.link2us.link/rules/` as pre-converted, signed files (verified
+   on device); only if the mirror is unavailable does the app fall back to fetching
+   the raw lists from `easylist.to` and converting them locally.
+
+   **When:** the app asks once on first launch (you may decline), and Settings →
+   Content Blocking has a download button at any time. **Neither requires a
+   subscription.** What the subscription buys is *automatic* updating (off by
+   default), which checks at most once per 24 hours.
+
+   **What the request carries:** only the filename. No URL you visited, no account
+   or device identifier, and an isolated network configuration with no cookies and
+   no cache. The one extra header is `If-None-Match`, a file-version tag from the
+   previous download — it identifies the file, not you, and is identical for
+   everyone holding that version.
+
+   **What reaches us:** this is the only request in this policy that goes to a
+   domain of ours, so to be explicit — as with any web server, the connection
+   carries your IP address, user-agent string, time and the requested filename.
+   That domain is static file hosting (Cloudflare); we run no code of our own on
+   it and **we do not export or retain per-request logs anywhere**. What we can see
+   is the provider's aggregate traffic statistics (request counts, cache hit rate),
+   which contain no individual users. Your IP is still processed by the provider in
+   the course of delivery and abuse prevention — unavoidable in any connection.
+   When the upstream fallback is used, it is EasyList's infrastructure (a third
+   party) that sees your IP, outside our hands.
 2. **Lock screen artwork → the image host the page specifies.** This is the only third-party connection that can
    happen while you are not actively looking at a page — it fires with the app in
    the background and the screen locked. It uses an isolated configuration with no cookies or cache, and
