@@ -120,6 +120,14 @@ iOS 內建的網頁引擎會就你造訪的網址向 Apple 查詢是否為已知
 並在命中時擋下。**這是 iOS 的系統層功能,查詢對象是 Apple,我們看不到也碰不到。**
 我們選擇保留它 —— 關掉可以讓這份政策少一條,但會讓你少一層保護。
 
+**(選用)回報問題**:設定 → 關於 →「回報問題」會開啟**你自己的**郵件
+(或分享面板),收件人是我們的支援信箱。App 不會自行傳送任何資料 ——
+內文與附件在寄出前全部可見,按下送出的是你。附件是「診斷紀錄」
+(設定 → 隱私,**預設關閉**):只記錄功能事件(播放、阻擋、全螢幕等),
+網址在寫入時就只保留網站主機的部分;關閉開關即刪除整份紀錄。
+我們收到的回報僅用於除錯,不與任何其他資料關聯、不提供第三方,
+處理完成後 90 天內刪除。
+
 除上述之外,App 不會發出其他對外連線。
 
 ---
@@ -303,6 +311,16 @@ Note that search terms persist as part of the search URL recorded in history.
    leave you less protected.
 
 The app makes no other outbound connections.
+
+**(Optional) Issue reports.** Settings → About → "Report a problem" opens
+**your own** mail composer (or the share sheet) addressed to our support
+mailbox. The app transmits nothing by itself — the body and attachment are
+fully visible before sending, and it is you who taps send. The attachment is
+the diagnostic log (Settings → Privacy, **off by default**): it records
+feature events only (playback, blocking, fullscreen and the like), URLs are
+reduced to their host at write time, and turning the switch off deletes the
+log. Reports we receive are used solely for debugging, are not linked to any
+other data, are not shared, and are deleted within 90 days of resolution.
 
 ## 4. Private tabs
 
