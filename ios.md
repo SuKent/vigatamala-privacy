@@ -63,7 +63,7 @@
 | 網站資料 | cookie、快取、localStorage(由 WebKit 管理,**每個分頁一份獨立的**) | 分頁關閉即抹除 | 設定 →「資料」→「清除所有網站資料」;或盾牌選單清除單一站台 |
 | 分頁互動狀態 | 每個分頁的上一頁/下一頁清單(含網址)與捲動位置(**私密分頁不寫檔**) | 跟著分頁走 | 關閉該分頁即刪;「清除瀏覽歷史」也會把磁碟上的這份一併清掉 |
 | 規則更新紀錄 | 上次更新時間、規則筆數、以及是否走過沒有簽章的退路 | 無上限 | 目前沒有刪除入口(刪除 App 會一併移除) |
-| 規則清單快取 | 下載回來的阻擋規則本身(約 10 MB),**不含任何你的資料** | 到下次更新覆蓋 | 目前沒有刪除入口(刪除 App 會一併移除);**不進備份** |
+| 規則清單快取 | 下載回來的阻擋規則本身(約 14 MB;WebKit 另存一份編譯後的產物,約 53 MB),**不含任何你的資料** | 到下次更新覆蓋 | 目前沒有刪除入口(刪除 App 會一併移除);**不進備份** |
 | 診斷紀錄 | **預設關閉**。開啟後記錄功能事件,一般分頁只留網站主機、私密分頁連主機都不留 | 約 600 KB 封頂,超過只留後半 | 設定 →「隱私」→ 關閉「診斷紀錄」即**刪除整份**;**不進備份** |
 | 安裝識別碼 | 一組隨機產生的 UUID,存在 Keychain 而不是檔案裡。不含任何個人資料 | 無上限 | 見下方第 4 點 —— **刪除 App 不保證會移除** |
 
@@ -299,8 +299,9 @@ which contains URLs — and scroll position; never written to disk for private
 tabs), website data (cookies, caches) managed by WebKit in a **separate store
 per tab**, and rule-update bookkeeping (when each list was last refreshed, how
 many rules it held, and whether it came from the unsigned fallback). Two further
-items hold no data of yours: the **downloaded rule lists themselves** (~10 MB of
-cache, overwritten at the next update) and the **diagnostic log** (off by default;
+items hold no data of yours: the **downloaded rule lists themselves** (~14 MB of
+cache, plus roughly 53 MB of compiled output WebKit keeps alongside it, all
+overwritten at the next update) and the **diagnostic log** (off by default;
 see section 3 — capped at roughly 600 KB, and deleted the moment you turn the
 switch off). None of it is sent to us or to any third party.
 

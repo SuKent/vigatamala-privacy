@@ -13,17 +13,17 @@ EasyList —— Safari content blocker 改作版
 這是什麼(改作標示,CC BY-SA 3.0 §4(c)(iv))
   本檔為「EasyList」的改作物:自 Adblock Plus 過濾語法轉換為
   Apple 的 Safari content blocker JSON 格式,過程中丟棄了該格式
-  無法表達的規則型別,並截斷至 45000 條上限。
+  無法表達的規則型別,並截斷至 75000 條上限。
   原作者未以任何方式為本改作版背書。
 
 上游來源
   https://easylist.to/easylist/easylist.txt
 
 上游檔頭的著作權通知(逐字保留)
-  Version: 202608292122
+  Version: 202608300356
   Title: EasyList
-  Last modified: 29 Aug 2026 21:22 UTC
+  Last modified: 30 Aug 2026 03:56 UTC
   Expires: 4 days (update frequency)
-  Commit: 25fe26651584b88f9de4e099087cbade722d6a76
+  Commit: 240d224b117803bd2091ffc60e1aa750796ae54d
   Homepage: https://easylist.to/
   Licence: https://easylist.to/pages/licence.html

@@ -79,6 +79,7 @@ public enum AdblockRuleConverter {
         public static let emptyResourceTypes = "反向資源類型把所有類型都排除光了"
         public static let invalidDomain = "網域條件格式不合法"
         public static let wildcardDomain = "含萬用字元的網域條件無法表達"
+        public static let mediaSelfConflict = "會藏掉媒體引擎自己要用的元素(略過鈕 / 廣告標記 / 控制項)"
 
         public static func unsupportedOption(_ name: String) -> String {
             "不支援的選項:\(name)"
@@ -113,16 +114,74 @@ public enum AdblockRuleConverter {
     /// 分批可以把爆炸半徑限制在一批之內。
     public static let maxSelectorsPerRule = 200
 
+    /// 轉換的預設規則上限。
+    ///
+    /// 【為什麼要有這個常數】先前 `convert` 的預設是 50,000,而**所有**呼叫端
+    /// 都傳 45,000(RuleUpdateService、build-rules.sh、sync-rules-mirror.sh)。
+    /// 只在「漏傳參數」時才生效的預設值遲早會漂,集中在一處就不會。
+    /// (先前這段還寫著 50,000 會「超過 WKContentRuleList 上限、編譯失敗」——
+    /// **那是錯的**,WebKit 的拒收門檻是 150,000,50,000 遠低於它。)
+    ///
+    /// 【2026-08-30:45,000 → 75,000】
+    /// 45,000 是「顧及舊機型」憑感覺挑的,從來沒有量過。實測之後改掉:
+    ///
+    /// - **它砍掉的不是長尾。** 截斷是 `blocking.prefix(...)`,照**上游檔案
+    ///   順序**砍尾巴,而 `easylist_adservers.txt` 內部是**字母序** ——
+    ///   實測被丟掉的 13,766 條裡包含 `ad.doubleclick.net`、`doubleclick.net`、
+    ///   `2mdn.net`、`pagead`、`googlesyndication` 這些第一線廣告端點,
+    ///   以及 EasyPrivacy 整段 `easyprivacy_specific_international.txt`
+    ///   (約 2,000 條台/中/日/韓追蹤器)。對一個賣擋廣告、主打繁中市場的
+    ///   App,這是實質功能缺口,不是覆蓋率的邊際問題。
+    /// - **代價很小。** 兩份清單全開是 116,817 條:下載量 10.5 → 13.6 MiB,
+    ///   裝置上的編譯產物 42.6 → 53 MB(mmap 檔案、跨分頁共用一份,
+    ///   不隨分頁數成長),Mac 上編譯 1.3s → 1.8s。App 二進位**完全不變**
+    ///   (大清單不進 bundle)。
+    /// - **為什麼是 75,000 而不是 150,000。** 上游今天轉出來是 60,923 與
+    ///   55,894,75,000 對兩份都是**零截斷**又留約 23% 成長餘裕。
+    ///   150,000 是 WebKit 的**拒收門檻**,不是安全水位 —— 提出它的
+    ///   WebKit commit 自陳編譯程序有「約 150 MB 的記憶體軟上限」,
+    ///   而它附的 iOS 量測在 122,475 條時峰值已達 146 MB。
+    ///   能編得起來的條數與值得編的條數不是同一件事。
+    ///
+    /// ⚠️ 改這個值要一併改 `Tools/build-rules.sh` 與 `Tools/sync-rules-mirror.sh`
+    ///    傳進去的數字(它們是明文傳的,不吃這個預設值)。
+    public static let defaultLimit = 75_000
+
+    /// 不論外觀規則有多少,一定要留給阻擋規則的最低名額。
+    ///
+    /// 【為什麼需要一個底線】上限是先給例外與外觀佔位、剩下才給阻擋。
+    /// 沒有底線的話,一份外觀規則特別多的清單會把阻擋預算擠成 0 ——
+    /// 而「擋不掉廣告」比「藏不掉版位」嚴重一個等級,那個順序是反的。
+    /// 8,000 是量級選擇:足以涵蓋主流追蹤器與廣告網域,又不會反過來把
+    /// 外觀規則整批擠掉。
+    ///
+    /// ⚠️ 這是**上限**不是配額:實際保留的是 `min(阻擋規則條數, 8_000)`。
+    /// 阻擋規則只有 50 條的清單只會扣掉 50 個名額,不是 8,000 個。
+    static let minimumBlockingSlots = 8_000
+
     // MARK: - 進入點
 
     /// 轉換一整份清單文字。
-    public static func convert(_ text: String, limit: Int = 50_000) -> ConversionResult {
-        convert(lines: text.split(whereSeparator: \.isNewline).map(String.init), limit: limit)
+    ///
+    /// - Parameter mediaGuard: 「不准被外觀規則藏掉的元素」防線。預設用出貨的
+    ///   profile 推導(見 `MediaSelectorGuard`)。傳 `.inactive` 可完全關掉,
+    ///   測試用。
+    public static func convert(
+        _ text: String,
+        limit: Int = defaultLimit,
+        mediaGuard: MediaSelectorGuard.Guard = MediaSelectorGuard.vendored
+    ) -> ConversionResult {
+        convert(lines: text.split(whereSeparator: \.isNewline).map(String.init),
+                limit: limit, mediaGuard: mediaGuard)
     }
 
     /// 轉換已切好行的清單。
-    public static func convert(lines: [String], limit: Int = 50_000) -> ConversionResult {
-        var builder = Builder(limit: limit)
+    public static func convert(
+        lines: [String],
+        limit: Int = defaultLimit,
+        mediaGuard: MediaSelectorGuard.Guard = MediaSelectorGuard.vendored
+    ) -> ConversionResult {
+        var builder = Builder(limit: limit, mediaGuard: mediaGuard)
         for line in lines {
             builder.consume(line)
         }
@@ -138,6 +197,8 @@ public enum AdblockRuleConverter {
 
     private struct Builder {
         let limit: Int
+        /// 「不准被外觀規則藏掉的元素」防線,見 `MediaSelectorGuard`。
+        let mediaGuard: MediaSelectorGuard.Guard
 
         var blocking: [ContentBlockerRule] = []
         /// 與 `blocking` 平行:每條阻擋規則來自哪一行。
@@ -153,12 +214,24 @@ public enum AdblockRuleConverter {
         var cosmeticSelectors: [CosmeticKey: [String]] = [:]
         var cosmeticSeen: [CosmeticKey: Set<String>] = [:]
 
+        /// `#@#` 元素隱藏例外:選擇器 → **不要**在這些網域上套用它。
+        ///
+        /// 【為什麼非有不可】EasyList 的 `#@#` 存在的唯一理由,就是修正
+        /// 前面某條通用隱藏規則在特定站台上的**過度隱藏**。整批丟掉等於出貨
+        /// 一份「拆掉安全網」的 EasyList —— 而症狀(某個站台的內容莫名不見)
+        /// 對使用者是完全無法歸因的,他只會覺得這個瀏覽器怪怪的,
+        /// 而且**沒有任何救濟**:唯一的辦法是把整站的外觀阻擋關掉。
+        var cosmeticExceptionDomains: [String: [String]] = [:]
+        /// 網域段是空的 `#@#` —— 意思是這條選擇器整個不要用。
+        var globallyExceptedSelectors: Set<String> = []
+
         var acceptedCount = 0
         var skippedCount = 0
         var skipped: [SkippedFilter] = []
 
-        init(limit: Int) {
+        init(limit: Int, mediaGuard: MediaSelectorGuard.Guard) {
             self.limit = limit
+            self.mediaGuard = mediaGuard
         }
 
         // MARK: 記錄
@@ -207,7 +280,17 @@ public enum AdblockRuleConverter {
             _ split: (domains: String, separator: String, body: String)
         ) {
             guard split.separator == "##" else {
-                // `#@#` 系列是例外規則、`#?#` / `#$#` / `#%#` 系列是擴充語法,兩者 WebKit 都做不到。
+                // 【`#@#` 現在會被記下來,不再整條丟掉】
+                // WebKit 沒有「元素隱藏例外」這種規則,但它有 `unless-domain` ——
+                // 兩者表達得出同一件事:把例外的網域接到對應選擇器的規則上。
+                // 見 finish() 的重新分組。
+                if split.separator == "#@#" {
+                    noteCosmeticException(line, split)
+                    return
+                }
+                // `#@$#` / `#@?#` / `#@%#` 這些是**擴充語法的例外**,本體我們
+                // 本來就表達不出來,例外自然也不必記。其餘 `#?#` / `#$#` / `#%#`
+                // 同理。
                 let reason = split.separator.contains("@")
                     ? SkipReason.cosmeticException
                     : SkipReason.extendedCosmetic
@@ -237,8 +320,9 @@ public enum AdblockRuleConverter {
                 return
             }
 
-            let include: [String]
-            let exclude: [String]
+            // var 而不是 let:下面的自我衝突防線可能要調整它們(見那一段)。
+            var include: [String]
+            var exclude: [String]
             switch AdblockRuleConverter.parseDomains(split.domains, separator: ",") {
             case .skip(let reason):
                 skip(line, reason)
@@ -258,6 +342,35 @@ public enum AdblockRuleConverter {
                 skip(line, SkipReason.mixedDomains)
                 return
             }
+            // 【自我衝突:別藏掉我們自己要點的東西】
+            //
+            // 上游的一條通用規則曾把包著略過鈕的整個容器設成 display:none ——
+            // 於是每一支可略過廣告的略過鈕都是我們自己藏掉、按不到的
+            //(實測 89~109 次進入廣告對 0 次成功略過)。詳見 MediaSelectorGuard。
+            //
+            // 兩種形狀分開處理:
+            //  - 通用規則(沒有 if-domain)→ 加上 unless-domain 避開媒體站台,
+            //    其他站台照樣受益。
+            //  - 已經限定站台的規則 → 從 if-domain 裡拿掉媒體站台;
+            //    拿掉之後沒剩的話整條略過(Safari 的 trigger 不允許
+            //    if-domain 與 unless-domain 並存,沒有第三種寫法)。
+            if mediaGuard.conflicts(with: selector) {
+                if include.isEmpty {
+                    for domain in mediaGuard.unlessDomains where !exclude.contains(domain) {
+                        exclude.append(domain)
+                    }
+                } else {
+                    let kept = include.filter { !mediaGuard.unlessDomains.contains($0) }
+                    if kept.count != include.count {
+                        guard !kept.isEmpty else {
+                            skip(line, SkipReason.mediaSelfConflict)
+                            return
+                        }
+                        include = kept
+                    }
+                }
+            }
+
             guard reserveSlot(line) else { return }
 
             let key = CosmeticKey(ifDomain: include, unlessDomain: exclude)
@@ -269,6 +382,49 @@ public enum AdblockRuleConverter {
             // 同一組網域條件下的重複選擇器只留一次。
             if cosmeticSeen[key]?.insert(selector).inserted == true {
                 cosmeticSelectors[key]?.append(selector)
+            }
+        }
+
+        /// 記下一條 `#@#` 例外。
+        ///
+        /// 比對是**選擇器字串相等**:EasyList 的例外一律逐字重複本體的選擇器,
+        /// 所以字串比對就夠了,不需要 CSS 語意解析。
+        ///
+        /// ⚠️ 已知限制:網域比對也是字串相等。`##` 寫 `example.com` 而 `#@#`
+        /// 寫 `m.example.com` 時對不上,例外不生效。那只是「少救一個站」,
+        /// 不會造成新的錯誤 —— 而反過來(自作聰明做子網域推導)會讓例外
+        /// 擴散到不該生效的地方,那才是真的壞。
+        mutating func noteCosmeticException(
+            _ line: String,
+            _ split: (domains: String, separator: String, body: String)
+        ) {
+            let selector = split.body.trimmingCharacters(in: .whitespaces)
+            guard !selector.isEmpty else {
+                skip(line, SkipReason.emptySelector)
+                return
+            }
+            let domainText = split.domains.trimmingCharacters(in: .whitespaces)
+            guard !domainText.isEmpty else {
+                // 沒有網域段 = 這條選擇器在任何地方都不要用。
+                globallyExceptedSelectors.insert(selector)
+                return
+            }
+            switch AdblockRuleConverter.parseDomains(domainText, separator: ",") {
+            case .skip(let reason):
+                skip(line, reason)
+            case .ok(let parsed):
+                // `#@#` 的網域段語意是「在這些站上停用」,對應 include。
+                // 反向網域(`~foo.com#@#…`)表達的是「除了 foo.com 以外都停用」,
+                // 那要展開成全站例外再挖洞,WebKit 表達不出來 —— 照舊跳過。
+                guard !parsed.include.isEmpty, parsed.exclude.isEmpty else {
+                    skip(line, SkipReason.cosmeticException)
+                    return
+                }
+                var domains = cosmeticExceptionDomains[selector] ?? []
+                for domain in parsed.include where !domains.contains(domain) {
+                    domains.append(domain)
+                }
+                cosmeticExceptionDomains[selector] = domains
             }
         }
 
@@ -329,10 +485,52 @@ public enum AdblockRuleConverter {
             // 「擋掉整個網際網路」不是使用者要的。能把「比對全部網址」收束回可接受範圍的
             // 只有網域條件;資源類型與 first/third-party 都不算——`*$script` 會擋掉全網的
             // 腳本、`@@*$image` 會把整個圖片阻擋一次解除,兩者都是全域級的破壞。
+            //
+            // 【只認 include,不認 exclude】`unless-domain` 是**反向**的:它讓規則適用於
+            // 「除了這幾個以外的所有站台」,不是收束而是放大。把它算成限制條件的話,
+            // `@@*$domain=~nonexistent.invalid` 會通過檢查,轉出
+            // `url-filter=".*" + unless-domain` 的 ignore-previous-rules ——
+            // 而例外一律排在最後(見 finish()),於是那**一行**會在幾乎每個網站上
+            // 取消整份清單的所有阻擋。反方向的 `*$domain=~x.com` 則是擋掉除了
+            // x.com 以外的整個網路。
+            //
+            // 這個安全網目前沒被觸發過(以忠實移植的版本跑今日上游:easylist 0 條、
+            // easyprivacy 1 條命中 unconstrained),但它存在的理由正是「輸入不可信」——
+            // 而遠端清單就是不可信輸入。
             let hasDomainConstraint = !options.includeDomains.isEmpty
-                || !options.excludeDomains.isEmpty
             if AdblockRuleConverter.matchesEverything(urlFilter) && !hasDomainConstraint {
                 skip(line, SkipReason.unconstrained)
+                return
+            }
+
+            // 【@@…$document 是整站白名單,不是「只解除主文件的阻擋」】
+            //
+            // ABP 語意裡 `@@||safe.test^$document` 是「在這個頁面上停用所有過濾」。
+            // 直譯成 `resource-type: ["document"]` 的話,條件變成「**請求網址**是
+            // safe.test 而且資源型別是 document」—— 頁面裡對 ads.test 發出的
+            // script / image / XHR,請求網址不是 safe.test,一條都不會命中,廣告照擋。
+            // 實務上只達成一半:例外排在最後,所以該頁的 css-display-none 確實被解除
+            // (外觀層有效),網路層則原封不動 —— 上游用這條規則要修的破版
+            // (多半是反擋廣告偵測)因此修不好。今日上游 easylist 28 條、
+            // easyprivacy 14 條落在這個情況。
+            //
+            // WebKit 表達整站白名單的慣用寫法是「比對全部網址 + if-domain」。
+            // 抽不出網域時(樣式帶路徑、或不是 ||host^ 形)**維持原樣**,
+            // 因為現行行為至少解除得了外觀層,改成跳過反而是淨損失。
+            if isException,
+               options.isDocumentOnly,
+               options.includeDomains.isEmpty,
+               options.excludeDomains.isEmpty,
+               options.loadType == nil,
+               let host = AdblockRuleConverter.siteWhitelistHost(from: split.pattern) {
+                guard reserveSlot(line) else { return }
+                exceptions.append(ContentBlockerRule(
+                    trigger: ContentBlockerRule.Trigger(
+                        urlFilter: ".*",
+                        ifDomain: ["*" + host]
+                    ),
+                    action: ContentBlockerRule.Action(type: .ignorePreviousRules)
+                ))
                 return
             }
 
@@ -374,10 +572,69 @@ public enum AdblockRuleConverter {
         ///
         /// 所以:例外與外觀規則先佔位,上限只砍**阻擋規則**的尾巴。
         /// 阻擋規則的尾端是長尾網域,少幾條的代價遠小於少一條例外。
+        /// 把 `#@#` 例外套進分組。
+        ///
+        /// 例外是 **per-selector** 的,而分組是 per-(if-domain, unless-domain) 的,
+        /// 所以有例外的選擇器要從原組拆出來、單獨成一組。兩種形狀分開處理 ——
+        /// 與 MediaSelectorGuard 的自我衝突防線完全同一套邏輯,理由也一樣:
+        /// Safari 的 trigger **不允許 if-domain 與 unless-domain 並存**,
+        /// 沒有第三種寫法。
+        ///
+        /// 順序:新拆出來的組接在原組後面,輸出保持決定性。
+        func applyCosmeticExceptions() -> (order: [CosmeticKey], selectors: [CosmeticKey: [String]]) {
+            guard !cosmeticExceptionDomains.isEmpty || !globallyExceptedSelectors.isEmpty else {
+                return (cosmeticOrder, cosmeticSelectors)
+            }
+            var order: [CosmeticKey] = []
+            var grouped: [CosmeticKey: [String]] = [:]
+            // 去重:兩個**不同**的原始分組在削掉 if-domain 之後可能收斂成同一組。
+            // 例如 `a.test,b.test##.x` + `b.test##.x` + `a.test#@#.x` ——
+            // 前兩者都會變成 `if-domain: [b.test]`,同一個 `.x` 進來兩次,
+            // 輸出成 `.x, .x`。CSS 上合法、行為也正確,但那是白白多出來的位元組,
+            // 而且會讓人以為轉換器算錯了。`handleCosmetic` 那邊本來就有
+            // `cosmeticSeen` 做同一件事,重新分組這條路先前漏了。
+            var seen: [CosmeticKey: Set<String>] = [:]
+            func add(_ key: CosmeticKey, _ selector: String) {
+                if grouped[key] == nil {
+                    order.append(key)
+                    grouped[key] = []
+                    seen[key] = []
+                }
+                guard seen[key]?.insert(selector).inserted == true else { return }
+                grouped[key]?.append(selector)
+            }
+
+            for key in cosmeticOrder {
+                for selector in cosmeticSelectors[key] ?? [] {
+                    // 全站例外 → 這條選擇器整個不輸出。
+                    if globallyExceptedSelectors.contains(selector) { continue }
+                    guard let domains = cosmeticExceptionDomains[selector], !domains.isEmpty else {
+                        add(key, selector)
+                        continue
+                    }
+                    if key.ifDomain.isEmpty {
+                        // 通用規則 → 加上 unless-domain 避開例外站台,其他站照樣受益。
+                        var exclude = key.unlessDomain
+                        for domain in domains where !exclude.contains(domain) {
+                            exclude.append(domain)
+                        }
+                        add(CosmeticKey(ifDomain: [], unlessDomain: exclude), selector)
+                    } else {
+                        // 已限定站台 → 從 if-domain 裡拿掉例外站台;拿光了就整條不輸出。
+                        let kept = key.ifDomain.filter { !domains.contains($0) }
+                        guard !kept.isEmpty else { continue }
+                        add(CosmeticKey(ifDomain: kept, unlessDomain: key.unlessDomain), selector)
+                    }
+                }
+            }
+            return (order, grouped)
+        }
+
         func finish() -> ConversionResult {
             var cosmeticRules: [ContentBlockerRule] = []
-            for key in cosmeticOrder {
-                guard let selectors = cosmeticSelectors[key], !selectors.isEmpty else { continue }
+            let effective = applyCosmeticExceptions()
+            for key in effective.order {
+                guard let selectors = effective.selectors[key], !selectors.isEmpty else { continue }
                 for chunk in selectors.vgmChunked(into: AdblockRuleConverter.maxSelectorsPerRule) {
                     let trigger = ContentBlockerRule.Trigger(
                         urlFilter: ".*",
@@ -397,13 +654,37 @@ public enum AdblockRuleConverter {
             }
 
             // 例外與外觀規則先佔名額,剩下的才給阻擋規則。
-            let reserved = exceptions.count + cosmeticRules.count
+            //
+            // 【`reserved > limit` 時會發生什麼 —— 先前是靜默的兩件壞事】
+            // 1. `max(0, limit - reserved)` 把預算夾成 0 → **阻擋規則全數歸零**。
+            //    使用者看到的是「更新成功、規則數還不少」,而實際上一條網路層
+            //    阻擋都沒有掛上 —— 那正是這個 App 的核心功能。
+            // 2. 就算歸零,最終輸出仍是 `reserved` 條,**照樣超過 limit**。
+            //    上限的用意(WebKit 的編譯成本與記憶體)因此完全落空。
+            //
+            // 現在:外觀規則也吃上限,並且**保證阻擋規則拿得到一個底線名額**。
+            // 順序上先犧牲外觀(藏不掉版位是體驗問題),再犧牲阻擋(擋不掉是功能問題),
+            // 例外永遠不砍(丟例外會讓站台破圖,而且是靜默的)。
+            let exceptionCount = exceptions.count
+            // 例外本身就超過上限的話,上限已經沒有意義可言 —— 讓例外全過,
+            // 其餘全砍,並在結果裡誠實反映。這是理論情境(EasyList 的例外約
+            // 佔總數個位數百分比),但不留這條路的話就是上面那個靜默歸零。
+            // 底線只保留**阻擋規則真的用得到**的份量。
+            // 無條件扣 8,000 的話,一份阻擋規則本來就少的清單(自訂清單常見:
+            // 幾百條網路層 + 一大批外觀)會平白損失七千多個名額 —— 那些名額
+            // 沒有被任何規則用到,只是憑空消失。
+            let blockingReserve = min(blocking.count, AdblockRuleConverter.minimumBlockingSlots)
+            let cosmeticBudget = max(0, limit - exceptionCount - blockingReserve)
+            let keptCosmetic = cosmeticRules.prefix(cosmeticBudget)
+            let droppedCosmetic = cosmeticRules.count - keptCosmetic.count
+
+            let reserved = exceptionCount + keptCosmetic.count
             let blockingBudget = max(0, limit - reserved)
             let keptBlocking = blocking.prefix(blockingBudget)
             let droppedBlocking = blocking.count - keptBlocking.count
 
             var rules = Array(keptBlocking)
-            rules.append(contentsOf: cosmeticRules)
+            rules.append(contentsOf: keptCosmetic)
             // 例外一定放最後:`ignore-previous-rules` 只解得掉排在它前面的規則。
             rules.append(contentsOf: exceptions)
 
@@ -413,7 +694,7 @@ public enum AdblockRuleConverter {
                 // 先前兩者相差 18%(顯示 90,000、實際掛上 76,443),
                 // 而這個數字是使用者判斷「更新成功了沒」的唯一訊號。
                 acceptedCount: rules.count,
-                skippedCount: skippedCount + droppedBlocking,
+                skippedCount: skippedCount + droppedBlocking + droppedCosmetic,
                 skipped: skipped
             )
             // 被上限砍掉的那些,逐條記進 skipped 樣本(上限內)。
@@ -698,6 +979,18 @@ public enum AdblockRuleConverter {
         var negatedTypes: Set<ContentBlockerRule.ResourceType> = []
         var sawPositiveType = false
         var sawNegatedType = false
+        /// 使用者真的寫了 `$document` / `$doc`。
+        ///
+        /// **不能用 `positiveTypes == [.document]` 代替**:`subdocument` 與 `frame`
+        /// 也對映到 `.document`(WebKit 沒有獨立的子框架型別),而
+        /// `@@||x^$subdocument` 的意思是「x 當成子框架載入時別擋」——
+        /// 那不是整站白名單,誤判會把一條窄例外放大成整站停用過濾。
+        var sawDocumentOption = false
+
+        /// 這條規則是不是**只**寫了 `$document`(整站白名單的判準)。
+        var isDocumentOnly: Bool {
+            sawDocumentOption && !sawNegatedType && positiveTypes == [.document]
+        }
         var loadType: ContentBlockerRule.LoadType?
         var matchCase = false
 
@@ -790,6 +1083,9 @@ public enum AdblockRuleConverter {
                     } else {
                         options.sawPositiveType = true
                         options.positiveTypes.formUnion(mapping.positive)
+                        // 只有真的寫 document / doc 才算(subdocument / frame 也對映到
+                        // .document,但語意完全不同 —— 見 NetworkOptions.sawDocumentOption)。
+                        if name == "document" || name == "doc" { options.sawDocumentOption = true }
                     }
                 } else {
                     return SkipReason.unsupportedOption(name)
@@ -908,6 +1204,34 @@ public enum AdblockRuleConverter {
     /// 不能只比對幾個字面值:`|`、`|*`、`*|`、`^` 這種殘缺行分別會轉出 `^`、`^`、`$`、
     /// 分隔符號字元類,四者都能在任意網址上找到落點——只要有一條這樣的規則進了清單,
     /// 使用者的整個網路就被擋死。做法是剝掉錨點與前後的 `.*`,剩下的是空的就代表全命中。
+    /**
+     從 `||host^` 這種網域錨定樣式抽出主機名 —— 抽不出來就回 nil。
+
+     只接受「整條樣式就是一個網域」的形狀:`||host`、`||host^`、`||host/`、
+     `||host|`、`||host^|`。帶路徑的(`||host/path`)刻意不接受 ——
+     那是路徑範圍的例外,不是整站白名單,放大它會停用整個網站的過濾。
+     含萬用字元的也不接受:`if-domain` 的比對語意與 url-filter 不同,
+     翻譯錯的代價是靜默地把過濾關掉。
+     */
+    static func siteWhitelistHost(from rawPattern: String) -> String? {
+        guard rawPattern.hasPrefix("||") else { return nil }
+        var rest = Substring(rawPattern.dropFirst(2))
+
+        // 收尾允許的裝飾:`^`(分隔符號)、`|`(結尾錨點)、單一個 `/`。
+        while let last = rest.last, last == "|" || last == "^" || last == "/" {
+            rest = rest.dropLast()
+        }
+        let host = String(rest).lowercased()
+        guard !host.isEmpty, host.count <= 253, host.contains(".") else { return nil }
+        guard host.allSatisfy({ $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "." || $0 == "-") })
+        else { return nil }
+        // 前後不得是點或連字號,也不得有連續的點 —— 那不是合法主機名。
+        guard !host.hasPrefix("."), !host.hasSuffix("."),
+              !host.hasPrefix("-"), !host.hasSuffix("-"),
+              !host.contains("..") else { return nil }
+        return host
+    }
+
     static func matchesEverything(_ regex: String) -> Bool {
         var body = Substring(regex)
         if body.hasPrefix(domainAnchorPrefix) {

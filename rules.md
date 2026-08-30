@@ -59,7 +59,7 @@ Vigatamala App 內嵌對應公鑰,鏡像來源必須驗簽通過才會被採用�
 ```bash
 cd rules/converter
 swift build -c release
-.build/release/RuleConverter <輸入.txt> <輸出.json> 45000
+.build/release/RuleConverter <輸入.txt> <輸出.json> 75000
 ```
 
 本 repo 的規則由 GitHub Actions 每日自動同步(見 `.github/workflows/`),
