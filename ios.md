@@ -1,6 +1,6 @@
 # Vigatamala 隱私政策
 
-**最後更新:2026-08-17**
+**最後更新:2026-08-30**
 **適用對象:Vigatamala for iOS**
 
 *English version below — [jump to English](#privacy-policy-english).*
@@ -21,9 +21,12 @@
 
 ## 1. 我們收不到的東西
 
-- **我們沒有帳號後端,也收不到你的瀏覽資料。** App 唯一會連向我們網域的,是
-  下載阻擋規則清單的那條請求(見第 3 節第 (1) 項)—— 它只帶要下載的檔名,
-  不帶你造訪過的網址,也不帶帳號或裝置識別碼。除此之外沒有任何連向我們的連線。
+- **我們沒有帳號後端,也收不到你的瀏覽資料。** App **自己主動**連向我們網域的,
+  只有下載阻擋規則清單的那條請求(見第 3 節第 (1) 項)—— 它只帶要下載的檔名,
+  不帶你造訪過的網址,也不帶帳號或裝置識別碼。
+  (設定 → 關於裡的「隱私政策」與「阻擋規則授權」頁的鏡像連結也指向同一個網域,
+  但那是兩個**一般的網頁連結**:你點了才會前往,和你在任何瀏覽器裡開一個網址
+  沒有兩樣。除此之外沒有任何連向我們的連線。)
 - **沒有任何第三方軟體套件。** 沒有 Google Analytics、Firebase、Crashlytics、
   Sentry,也沒有廣告聯播網。
 - **沒有廣告識別碼(IDFA)**,不會跳出「允許追蹤」的要求。
@@ -40,9 +43,13 @@
 
 以下全部存在 App 的私有資料夾內,**不會傳送給我們或任何第三方**。
 
-但要誠實講一件事:若你開啟 iCloud 備份、或用電腦備份 iPhone,這些檔案會隨
+但要誠實講一件事:若你開啟 iCloud 備份、或用電腦備份 iPhone,這些檔案**多數**會隨
 **系統備份**一併複製。那是 Apple 的備份機制,備份內容我們讀不到,也無法讀。
-我們沒有把這些檔案排除在備份之外 —— 排除了你換手機時書籤與歷史就會消失。
+我們沒有把書籤、歷史、分頁那些排除在備份之外 —— 排除了你換手機時它們就會消失。
+
+**兩份例外**,我們主動排除在備份之外:**規則清單快取**(隨時可以重新下載的
+衍生資料,沒有理由佔用你的 iCloud 空間)與**診斷紀錄**(裡面有你造訪過的
+網站主機,沒有理由讓它離開這台裝置)。
 
 | 資料 | 內容 | 保留 | 怎麼刪 |
 |---|---|---|---|
@@ -54,16 +61,29 @@
 | 觀看進度 | 媒體識別碼、播放位置 | 90 天或 500 筆 | 隨「清除瀏覽歷史」一併清除 |
 | 偏好設定 | 各項開關;**以及你為個別網站設過的例外** | 無上限 | 該站所有覆寫都改回「沿用全域」時會自動移除 |
 | 網站資料 | cookie、快取、localStorage(由 WebKit 管理,**每個分頁一份獨立的**) | 分頁關閉即抹除 | 設定 →「資料」→「清除所有網站資料」;或盾牌選單清除單一站台 |
-| 授權紀錄 | 本機產生的帳號 UUID、購買交易編號與日期、授權天數帳本 | 無上限 | 目前沒有刪除入口(刪除 App 會一併移除) |
-| 阻擋統計 | 累計擋掉幾個劫持、關掉幾個橫幅 | 無上限 | 同上 |
-| 規則更新紀錄 | 上次更新時間與規則筆數 | 無上限 | 同上 |
+| 分頁互動狀態 | 每個分頁的上一頁/下一頁清單(含網址)與捲動位置(**私密分頁不寫檔**) | 跟著分頁走 | 關閉該分頁即刪;「清除瀏覽歷史」也會把磁碟上的這份一併清掉 |
+| 規則更新紀錄 | 上次更新時間、規則筆數、以及是否走過沒有簽章的退路 | 無上限 | 目前沒有刪除入口(刪除 App 會一併移除) |
+| 規則清單快取 | 下載回來的阻擋規則本身(約 10 MB),**不含任何你的資料** | 到下次更新覆蓋 | 目前沒有刪除入口(刪除 App 會一併移除);**不進備份** |
+| 診斷紀錄 | **預設關閉**。開啟後記錄功能事件,一般分頁只留網站主機、私密分頁連主機都不留 | 約 600 KB 封頂,超過只留後半 | 設定 →「隱私」→ 關閉「診斷紀錄」即**刪除整份**;**不進備份** |
+| 安裝識別碼 | 一組隨機產生的 UUID,存在 Keychain 而不是檔案裡。不含任何個人資料 | 無上限 | 見下方第 4 點 —— **刪除 App 不保證會移除** |
 
-**要知道的兩件事:**
+**要知道的四件事:**
 
 1. **搜尋字詞會以網址的形式留在歷史裡。** 你在網址列打字搜尋,產生的是一個含
    `?q=你打的字` 的搜尋網址,那個網址會被記進瀏覽歷史。清除歷史就會一起消失。
 2. **「清除瀏覽歷史」不會清掉分頁、書籤與稍後閱讀。** 那三者各自有自己的刪除方式
    (見上表)。
+3. **購買紀錄不在我們這裡,我們也沒有另外抄一份。** 訂閱狀態由 Apple 的
+   App Store 保管;App 只是向系統問「這個 Apple ID 現在有沒有有效訂閱」。
+   交易編號、扣款日期、剩餘天數之類的東西,我們**沒有**在你的裝置上另存一份,
+   也沒有伺服器可以存。
+4. **安裝識別碼刪除 App 之後可能仍然留著,而且會跟著加密備份到新裝置。**
+   它存在 Keychain 裡,而 Apple **沒有保證**刪除 App 時會一併清除 Keychain
+   項目(實務上多半會留下)。我們也刻意沒有把它標成「僅限本機」,所以你從加密
+   備份還原到新 iPhone 時,它會是同一組值 —— 這是為了讓換機的你被當成同一個
+   安裝,而不是憑空多一台裝置。它只是一組隨機字串,不含任何個人資料,而且
+   **目前沒有任何程式碼會把它送出裝置**。將來若要靠它做帳號關聯,我們會先更新
+   這份政策(見第 8 節)再做。
 
 ---
 
@@ -113,7 +133,9 @@ App 在背景、螢幕鎖著時,它仍然會發出。 我們把它限制到最�
 
 **(5) App 內購買 → Apple(StoreKit)**
 只在你購買或恢復購買時發生。往返對象是 Apple,不是我們。
-你完成購買時,Apple 給我們的交易編號與購買日期**只寫在你的裝置上**。
+交易紀錄由 StoreKit(Apple 的系統元件)保管,**我們沒有另外抄一份在裝置上**,
+也沒有伺服器可以抄 —— App 只是在啟動與購買後向系統問一句「這個 Apple ID
+現在有沒有有效訂閱」,拿到的是有或沒有,以及到期時間。
 
 **(6) 詐騙網站警告 → Apple**
 iOS 內建的網頁引擎會就你造訪的網址向 Apple 查詢是否為已知的詐騙或惡意網站,
@@ -122,11 +144,20 @@ iOS 內建的網頁引擎會就你造訪的網址向 Apple 查詢是否為已知
 
 **(選用)回報問題**:設定 → 關於 →「回報問題」會開啟**你自己的**郵件
 (或分享面板),收件人是我們的支援信箱。App 不會自行傳送任何資料 ——
-內文與附件在寄出前全部可見,按下送出的是你。附件是「診斷紀錄」
-(設定 → 隱私,**預設關閉**):只記錄功能事件(播放、阻擋、全螢幕等),
-網址在寫入時就只保留網站主機的部分;關閉開關即刪除整份紀錄。
-我們收到的回報僅用於除錯,不與任何其他資料關聯、不提供第三方,
-處理完成後 90 天內刪除。
+內文與附件在寄出前全部可見,按下送出的是你。除了你寫的描述之外,信件會
+預先填入三行:App 版本、iOS 版本、裝置機型(例如「iPhone」)—— 沒有序號、
+沒有任何識別碼,而且你可以在寄出前刪掉它們。
+
+附件是「診斷紀錄」(設定 → 隱私,**預設關閉**),只記錄功能事件
+(播放、阻擋、全螢幕等)。網址在**寫入磁碟的當下**就已經遮蔽,不是寄出時才處理:
+
+- 一般分頁:只留 `https://主機`,路徑與查詢字串一律換成「…」;
+- **私密分頁:連主機都不留**,整個網址換成「‹私密›」;
+- 網址裡若內嵌了帳號密碼(`https://帳號:密碼@…` 這種形式),
+  會在遮蔽之前先被拔掉。
+
+關閉開關即刪除整份紀錄。我們收到的回報僅用於除錯,不與任何其他資料關聯、
+不提供第三方,處理完成後 90 天內刪除。
 
 除上述之外,App 不會發出其他對外連線。
 
@@ -160,6 +191,10 @@ Vigatamala 是內容阻擋型瀏覽器。為了達成阻擋,我們會:
 - 送出 Global Privacy Control 訊號;
 - 自動關閉 cookie 同意橫幅 —— **一律選擇拒絕**。部分網站的同意平台會把這個
   「拒絕」決定回報給它自己的伺服器,那是該平台的行為,不是我們發起的;
+- 自動關閉「用 App 開啟」的招攬牆 —— 找得到「暫時不要」這類否定選項時
+  **代你按下它**,找不到就只把那片浮層藏起來。**永遠不會按招攬鈕**,
+  含密碼欄的浮層(登入牆)也不動。同上,被按下的那個選項若讓網站記下
+  「這個人選了不要」,那是該網站的行為;
 - 在送出請求前改寫網址:剝除只用於追蹤的參數、把 Google 的 AMP 殼還原成
   原始頁面(這一項會換主機,落點是該連結本來就指向的那一頁)、
   以及把 http 升級為 https(升級失敗不會靜默退回,會問你);
@@ -167,10 +202,19 @@ Vigatamala 是內容阻擋型瀏覽器。為了達成阻擋,我們會:
   給你閹割版頁面);
 - 你開啟夜間模式時,對淺色網頁套用色彩反轉。
 
-**以上每一項都可以全域關閉。** 其中阻擋、殘留版位收合、反劫持、指紋防護與
-夜間模式還可以在網址列的盾牌選單針對個別網站關閉。
-Global Privacy Control 訊號只有全域開關(它是一個對所有網站一致的法律訊號,
-逐站送不送反而沒有意義)。
+**除了 User-Agent 之外,以上每一項都可以全域關閉**,多數還能在網址列的盾牌
+選單針對個別網站關閉(阻擋、追蹤器阻擋、殘留版位收合、反劫持、指紋防護、
+HTTPS 強制、cookie 橫幅、夜間模式、桌面版網頁)。兩個例外要講清楚:
+
+- **User-Agent 沒有關閉選項。** App 一律以與 Safari 一致的字串自我介紹
+  (盾牌選單的「桌面版網頁」只是換成 macOS Safari 的版本,不是關掉它)。
+  這是刻意的:一個認不出來的瀏覽器字串會讓部分網站直接拒絕服務或給你
+  閹割版頁面,而它送出的資訊比預設值**更少**辨識度 —— 它讓你看起來
+  和其他所有 Safari 使用者一樣,而不是「某個小眾瀏覽器的使用者」。
+- **Global Privacy Control 只有全域開關**(它是一個對所有網站一致的法律訊號,
+  逐站送不送反而沒有意義)。技術限制也一併講明:`Sec-GPC` 標頭只掛得上
+  App 自己發起的主框架請求,iOS 的網頁引擎不提供為頁面內的子資源請求
+  加標頭的途徑;`navigator.globalPrivacyControl` 則對整頁都成立。
 
 ---
 
@@ -186,6 +230,10 @@ Global Privacy Control 訊號只有全域開關(它是一個對所有網站一�
 ## 7. 兒童
 
 本 App 不面向 13 歲以下兒童,也不會在知情的情況下收集兒童的個人資料。
+
+本 App 在 App Store 的年齡分級為 **16+**。這是通用瀏覽器的必然結果 ——
+它能開啟任何網頁(Apple 問卷裡的「不受限的網頁存取」),而該項目的最低分級
+就是 16+,所有主流瀏覽器都一樣。
 
 ---
 
@@ -209,7 +257,7 @@ Global Privacy Control 訊號只有全域開關(它是一個對所有網站一�
 
 # Privacy Policy (English)
 
-**Last updated: 17 August 2026**
+**Last updated: 30 August 2026**
 **Applies to: Vigatamala for iOS**
 
 ## In short
@@ -223,9 +271,13 @@ Which sites you visit, what you watch and what you search for stay on your iPhon
 ## 1. What we cannot receive
 
 - **We have no account backend and receive none of your browsing data.** The only
-  request the app makes to a domain of ours is to download blocking rule lists
-  (see section 3, item 1). It carries the filename being requested — no URL you
-  visited, no account or device identifier. Nothing else connects to us.
+  request the app makes to a domain of ours **on its own initiative** is to download
+  blocking rule lists (see section 3, item 1). It carries the filename being
+  requested — no URL you visited, no account or device identifier. (The "Privacy
+  policy" link in Settings → About, and the mirror link on the blocking-rule
+  licence page, point at the same domain, but those are ordinary web links: they
+  go nowhere until you tap them, exactly like opening any URL in any browser.)
+  Nothing else connects to us.
 - **No third-party SDKs** — no Google Analytics, Firebase, Crashlytics, Sentry
   or ad networks.
 - **No advertising identifier (IDFA)** and no tracking permission prompt.
@@ -242,20 +294,44 @@ Which sites you visit, what you watch and what you search for stay on your iPhon
 Browsing history (full URLs, titles, timestamps; newest 2,000), open tabs,
 bookmarks, reading list (URLs only — never article text), playback queues,
 watch positions (90 days or 500 entries), preferences including any per-site
-exceptions you set, and website data (cookies, caches) managed by WebKit in a
-**separate store per tab**. Also stored: your entitlement record (a locally
-generated account UUID, purchase transaction identifiers), blocking counters,
-and rule-update bookkeeping. None of it is sent to us or to any third party.
+exceptions you set, per-tab interaction state (each tab's back/forward list —
+which contains URLs — and scroll position; never written to disk for private
+tabs), website data (cookies, caches) managed by WebKit in a **separate store
+per tab**, and rule-update bookkeeping (when each list was last refreshed, how
+many rules it held, and whether it came from the unsigned fallback). Two further
+items hold no data of yours: the **downloaded rule lists themselves** (~10 MB of
+cache, overwritten at the next update) and the **diagnostic log** (off by default;
+see section 3 — capped at roughly 600 KB, and deleted the moment you turn the
+switch off). None of it is sent to us or to any third party.
 
-Deletion: Settings → Data → Clear browsing history (also clears watch
-positions) and Clear all website data. Tabs, bookmarks and the reading list have
-their own removal actions — clearing history does not remove them.
+**Purchase records are not kept here, and we do not keep a copy.** Your
+subscription status is held by Apple's App Store; the app simply asks the system
+whether this Apple ID currently has an active subscription. Transaction
+identifiers, billing dates and remaining entitlement days are **not** stored on
+your device by us, and there is no server of ours that could store them.
+
+**One item lives in the Keychain rather than in a file: a randomly generated
+install identifier.** It is a random string containing no personal data, and no
+code in the app sends it anywhere today. Two things about it are worth knowing:
+Apple does **not** guarantee that Keychain items are removed when you delete an
+app (in practice they usually survive), and we deliberately do not mark it
+device-only, so restoring an encrypted backup carries the same value to a new
+iPhone — that is so a phone upgrade counts as the same installation rather than
+a new device. If we ever start using it to link devices to an account, we will
+update this policy first (see section 8).
+
+Deletion: Settings → Data → Clear browsing history (which also clears watch
+positions and the saved per-tab interaction state) and Clear all website data.
+Tabs, bookmarks and the reading list have their own removal actions — clearing
+history does not remove them.
 
 To be straightforward about one thing: if you use iCloud Backup or back up your
-iPhone to a computer, these files are copied as part of that **system backup**.
-That is Apple's mechanism; we cannot read its contents. We deliberately do not
-exclude them from backup — doing so would lose your bookmarks and history when
-you move to a new phone.
+iPhone to a computer, **most** of these files are copied as part of that **system
+backup**. That is Apple's mechanism; we cannot read its contents. We deliberately
+do not exclude bookmarks, history and tabs from backup — doing so would lose them
+when you move to a new phone. **Two exceptions we do exclude:** the rule-list
+cache (derived data you can always re-download) and the diagnostic log (it
+contains hosts you visited, so it has no business leaving this device).
 
 Note that search terms persist as part of the search URL recorded in history.
 
@@ -302,8 +378,12 @@ Note that search terms persist as part of the search URL recorded in history.
 4. **Images inside reader view → the article's own sources.** Reader view
    applies the same blocking rules and uses the same per-tab store as the tab it
    came from.
-5. **In-app purchases → Apple (StoreKit)**, only when you buy or restore.
-   Transaction identifiers Apple gives us are stored **only on your device**.
+5. **In-app purchases → Apple (StoreKit)**, only when you buy or restore. The
+   round trip is with Apple, not with us. Transaction records are held by
+   StoreKit, Apple's own system component; **we keep no separate copy on your
+   device** and have no server that could keep one. The app only asks the system
+   whether this Apple ID currently has an active subscription, and gets back a
+   yes/no plus an expiry date.
 6. **Fraudulent website warning → Apple.** iOS's built-in web engine checks the
    URLs you visit against Apple's list of known fraudulent sites. This is a
    system-level feature; the query goes to Apple and we can neither see nor
@@ -315,12 +395,23 @@ The app makes no other outbound connections.
 **(Optional) Issue reports.** Settings → About → "Report a problem" opens
 **your own** mail composer (or the share sheet) addressed to our support
 mailbox. The app transmits nothing by itself — the body and attachment are
-fully visible before sending, and it is you who taps send. The attachment is
-the diagnostic log (Settings → Privacy, **off by default**): it records
-feature events only (playback, blocking, fullscreen and the like), URLs are
-reduced to their host at write time, and turning the switch off deletes the
-log. Reports we receive are used solely for debugging, are not linked to any
-other data, are not shared, and are deleted within 90 days of resolution.
+fully visible before sending, and it is you who taps send. Besides what you
+write, the message is prefilled with three lines: app version, iOS version and
+device model (e.g. "iPhone") — no serial number, no identifier of any kind, and
+you can delete them before sending.
+
+The attachment is the diagnostic log (Settings → Privacy, **off by default**),
+which records feature events only (playback, blocking, fullscreen and the like).
+URLs are redacted **as they are written to disk**, not at send time:
+
+- ordinary tabs: only `https://host` survives; path and query become "…";
+- **private tabs: not even the host** — the whole URL becomes "‹私密›";
+- credentials embedded in a URL (`https://user:password@…`) are stripped before
+  either of the above runs.
+
+Turning the switch off deletes the log. Reports we receive are used solely for
+debugging, are not linked to any other data, are not shared, and are deleted
+within 90 days of resolution.
 
 ## 4. Private tabs
 
@@ -336,16 +427,34 @@ We block network requests and hide elements using public rule lists; intercept a
 page's own data requests to remove ad slots (which means we read and modify part
 of what the site sends); block popups and back-button hijacking; report
 noise-adjusted fingerprinting values; send Global Privacy Control; dismiss
-cookie consent banners — **always declining, never accepting**; rewrite URLs
-before the request is sent (stripping tracking-only parameters, unwrapping
-Google AMP shells, upgrading http to https — a failed upgrade asks rather than
-silently downgrading); send a Safari-matching User-Agent string; and, if you
-enable night mode, invert colours on light pages. Some consent
-platforms report that decision to their own servers; that is their behaviour,
-not a request we initiate. **Every one of these can be turned off globally**, and blocking, cosmetic
-cleanup, anti-hijacking, fingerprint protection and night mode can additionally
-be turned off per site from the shield menu. Global Privacy Control is global
-only — it is a consistent legal signal, so a per-site version would be meaningless.
+cookie consent banners — **always declining, never accepting**; dismiss
+"open in app" promotion walls — pressing the site's own "not now" option when one
+exists and merely hiding the overlay when it does not (**we never press the
+promotion button**, and overlays containing a password field are left alone);
+rewrite URLs before the request is sent (stripping tracking-only parameters,
+unwrapping Google AMP shells, upgrading http to https — a failed upgrade asks
+rather than silently downgrading); send a Safari-matching User-Agent string; and,
+if you enable night mode, invert colours on light pages. Where a consent platform
+or site records the choice we declined on your behalf, that is its behaviour, not
+a request we initiate.
+
+**Except for the User-Agent, every one of these can be turned off globally**, and
+most can additionally be turned off per site from the shield menu (blocking,
+tracker blocking, cosmetic cleanup, anti-hijacking, fingerprint protection,
+HTTPS-only, cookie banners, night mode, desktop mode). Two exceptions, stated
+plainly:
+
+- **The User-Agent has no off switch.** The app always identifies itself as
+  Safari (the shield menu's "desktop site" only swaps in the macOS Safari
+  version; it does not disable it). This is deliberate: an unrecognised browser
+  string gets you refused or served a degraded page by some sites, and it carries
+  *less* identifying information than the alternative — it makes you look like
+  every other Safari user rather than like the user of a niche browser.
+- **Global Privacy Control is global only** — it is a consistent legal signal, so
+  a per-site version would be meaningless. One technical limit, stated plainly:
+  the `Sec-GPC` header can only be attached to main-frame requests the app itself
+  issues, because iOS's web engine offers no way to add headers to a page's own
+  subresource requests; `navigator.globalPrivacyControl` applies to the whole page.
 
 ## 6. What we never do
 
@@ -357,6 +466,11 @@ apps or websites. We provide no content download or offline storage.
 
 This app is not directed at children under 13 and does not knowingly collect
 personal information from children.
+
+Its App Store age rating is **16+**. That follows from being a general-purpose
+browser: it can open any web page ("Unrestricted Web Access" in Apple's
+questionnaire), for which the minimum rating is 16+. Every mainstream browser
+carries the same rating.
 
 ## 8. Changes
 
