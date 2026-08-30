@@ -24,8 +24,13 @@
 過程中:
 
 - 丟棄了該格式無法表達的規則型別(scriptlet 注入、進階選項等);
-- 截斷至 45,000 條 —— 這是**我們自己選的**保守上限(顧及舊機型的編譯時間與
-  記憶體),不是 `WKContentRuleList` 的技術上限;後者在 iOS 上是 150,000 條。
+- 截斷至 65,000 條 —— 這是**我們自己選的**保守上限(顧及舊機型的編譯時間與
+  記憶體),不是格式的極限。以今天的上游來說這個上限**沒有真的砍到東西**
+  (easylist 60,928 條、easyprivacy 55,895 條,都在上限之內)。
+  WebKit 目前會在解析階段拒收超過 150,000 條的清單,但那個數字是 WebKit 的
+  實作細節(Apple 文件並未載明,2020 年底才從 50,000 調高),而且是對著
+  「編譯程序約 150 MB 的記憶體預算」訂出來的上界 —— 能編得起來的條數與
+  值得編的條數不是同一件事,我們不打算靠近那條線。
 
 因此它**不等於**上游清單,阻擋效果也不完全相同。
 想要完整原版請直接用[上游來源](https://easylist.to/)。
@@ -59,7 +64,7 @@ Vigatamala App 內嵌對應公鑰,鏡像來源必須驗簽通過才會被採用�
 ```bash
 cd rules/converter
 swift build -c release
-.build/release/RuleConverter <輸入.txt> <輸出.json> 45000
+.build/release/RuleConverter <輸入.txt> <輸出.json> 65000
 ```
 
 本 repo 的規則由 GitHub Actions 每日自動同步(見 `.github/workflows/`),
