@@ -1,6 +1,6 @@
 # Vigatamala 拦截规则
 
-[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [日本語](/rules.ja) · [한국어](/rules.ko)
+[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [English](/rules.en) · [日本語](/rules.ja) · [한국어](/rules.ko)
 
 这里存放 Vigatamala iOS 浏览器使用的广告与跟踪器拦截规则。
 

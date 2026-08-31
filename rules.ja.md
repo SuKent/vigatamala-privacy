@@ -1,6 +1,6 @@
 # Vigatamala ブロックルール
 
-[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [日本語](/rules.ja) · [한국어](/rules.ko)
+[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [English](/rules.en) · [日本語](/rules.ja) · [한국어](/rules.ko)
 
 ここには Vigatamala iOS ブラウザが使用する広告とトラッカーのブロックルールを置いています。
 

@@ -1,6 +1,6 @@
 # Vigatamala 차단 규칙
 
-[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [日本語](/rules.ja) · [한국어](/rules.ko)
+[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [English](/rules.en) · [日本語](/rules.ja) · [한국어](/rules.ko)
 
 여기에는 Vigatamala iOS 브라우저가 사용하는 광고 및 트래커 차단 규칙이 있습니다.
 
