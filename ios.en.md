@@ -56,19 +56,21 @@ backup**. That is Apple's mechanism; we cannot read its contents, and have no wa
 to. We deliberately do not exclude bookmarks, history and tabs from backup —
 doing so would lose them when you move to a new phone.
 
-**Two exceptions we do exclude** from backup: the **rule-list cache** (derived
-data you can always re-download, with no reason to take up your iCloud storage)
-and the **diagnostic log** (it contains hosts you visited, so it has no business
-leaving this device).
+**Three exceptions we do exclude** from backup: the **rule-list cache** (derived
+data you can always re-download, with no reason to take up your iCloud storage),
+the **site-icon cache** (its file names are derived from hosts you visited, so it
+has no business leaving this device) and the **diagnostic log** (it contains
+hosts you visited — same reason).
 
 | Data | Contents | Retention | How to delete |
 |---|---|---|---|
 | Browsing history | Full URLs, titles, timestamps | Newest 2,000 | Settings → "Data" → "Clear browsing history"; or "Clear" at the top right of the history page |
-| Tabs | URL, title, custom name, pinned state | No limit | Close the tab, or "Close all tabs" in the tab switcher menu (pinned tabs are skipped) |
+| Tabs | URL, title, custom name, pinned state, group membership (group name and color) | No limit | Close the tab, or "Close all tabs" in the tab switcher menu (pinned tabs are skipped) |
 | Bookmarks | URL, title, time added | No limit | Remove them one at a time from the bookmark grid on the home page |
 | Reading list | URL, title, timestamp (**never the article text**) | No limit | Swipe left to delete on the list page; "Clear read" at the top right |
 | Playback queue | Media URL, title, artist, artwork URL (**private tabs keep theirs in memory only**) | No limit | Swipe left to delete in the queue panel; closing that tab discards the whole queue |
 | Watch positions | Media identifier, playback position | 90 days or 500 entries | Cleared along with "Clear browsing history" |
+| Site-icon cache | Small icons the sites you opened declare for themselves; file names are a hash of the host (**private tabs never write to disk**) | At most 200 files | Cleared along with "Clear browsing history"; **excluded from backup** |
 | Preferences | Each of the switches; **and any exceptions you have set for an individual site** | No limit | Removed automatically once every override for that site is set back to "follow global" |
 | Website data | Cookies, caches, localStorage (managed by WebKit, **a separate store per tab**) | Erased when the tab closes | Settings → "Data" → "Clear all website data"; or clear an individual site from the shield menu |
 | Per-tab interaction state | Each tab's back/forward list (which contains URLs) and scroll position (**never written to a file for private tabs**) | Lives as long as the tab | Closing that tab deletes it; "Clear browsing history" also clears this copy from disk |
