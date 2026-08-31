@@ -1,5 +1,7 @@
 # Vigatamala 阻擋規則
 
+[繁體中文](/rules.zh-Hant) · [简体中文](/rules.zh-Hans) · [日本語](/rules.ja) · [한국어](/rules.ko)
+
 這裡存放 Vigatamala iOS 瀏覽器使用的廣告與追蹤器阻擋規則。
 
 這兩份清單**不隨 App 打包**,而是由使用者在 App 內下載 ——

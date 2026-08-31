@@ -42,6 +42,40 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
   <script>
+    // 有多語版本的文件。這幾個「不帶語言後綴」的網址要依瀏覽器語言自動挑一份。
+    //
+    // ⚠️ /ios 與 /rules 這兩個網址**不可以消失**,它們登記在三個我們改不到的地方:
+    //    ・App Store Connect 的隱私政策 URL 欄位(送審必填)
+    //    ・已核准的預設瀏覽器 entitlement 申請書的 Website 欄位
+    //    ・Docs/RULES.md 記載的 CC BY-SA §4(b) share-alike 履行網址(/rules)
+    //    所以檔案改名成 ios.zh-Hant.md 之後,這裡要把 /ios 轉成
+    //    「依語言挑一份」而不是 404。順帶也讓一般訪客看到自己的語言。
+    const LOCALIZED_DOCS = ['/ios', '/rules'];
+    const DOC_LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko'];
+
+    // 由瀏覽器語言挑一份。挑不到就回繁體中文(這個站的原始語言)。
+    function preferredDocLang() {
+      const wanted = (navigator.languages && navigator.languages.length
+        ? navigator.languages : [navigator.language || 'zh-Hant']);
+      for (const raw of wanted) {
+        const tag = String(raw || '');
+        const lower = tag.toLowerCase();
+        // 先認完整的書寫系統標記(zh-Hant / zh-Hans)。
+        if (lower.startsWith('zh')) {
+          // zh-TW / zh-HK / zh-MO 是繁體;zh-CN / zh-SG 是簡體;
+          // 只有 zh 或帶 Hant/Hans 的直接看標記。
+          if (/hant|tw|hk|mo/.test(lower)) return 'zh-Hant';
+          if (/hans|cn|sg/.test(lower)) return 'zh-Hans';
+          return 'zh-Hant';
+        }
+        const primary = lower.split('-')[0];
+        if (primary === 'ja') return 'ja';
+        if (primary === 'ko') return 'ko';
+        if (primary === 'en') return 'en';
+      }
+      return 'zh-Hant';
+    }
+
     // 解析網址路徑並對應到 .md 檔案路徑
     function getMarkdownFilePath() {
       let path = window.location.pathname;
@@ -49,6 +83,12 @@
       // 如果是根目錄，預設載入 index.md
       if (path === '/' || path === '') {
         return '/index.md';
+      }
+
+      // 去掉結尾的斜線,好讓 /ios/ 與 /ios 一樣處理。
+      const bare = path.replace(/\/+$/, '');
+      if (LOCALIZED_DOCS.includes(bare)) {
+        return bare + '.' + preferredDocLang() + '.md';
       }
 
       // 如果網址結尾沒有 .md，自動補上
@@ -59,18 +99,56 @@
       return path;
     }
 
+    // 由檔名後綴推出語言，供 <html lang> 使用。
+    // CJK 字型 fallback 會依 lang 挑字形，日文頁若留在 zh-TW 會顯示中文字形。
+    function getLangForPath(mdPath) {
+      const base = mdPath.replace(/\.md$/, '');
+      if (base.endsWith('.ja')) return 'ja';
+      if (base.endsWith('.ko')) return 'ko';
+      if (base.endsWith('.en')) return 'en';
+      // 簡體要獨立一支:CJK 字型 fallback 會依 lang 挑字形,
+      // 簡體頁留在 zh-TW 會用繁體字形算繪(部分字會長得不對)。
+      if (base.endsWith('.zh-Hans')) return 'zh-Hans';
+      if (base.endsWith('.zh-Hant')) return 'zh-Hant';
+      return 'zh-Hant';
+    }
+
+    const LOADING_TEXT = {
+      'zh-Hant': '載入內容中，請稍候...',
+      'ja': '読み込み中です。少々お待ちください...',
+      'ko': '내용을 불러오는 중입니다. 잠시만 기다려 주세요...',
+      'en': 'Loading...',
+      'zh-Hans': '正在加载内容,请稍候...'
+    };
+
     async function fetchAndRenderMarkdown() {
       const contentDiv = document.getElementById('content');
       const mdPath = getMarkdownFilePath();
+      const lang = getLangForPath(mdPath);
+
+      document.documentElement.lang = lang;
+      const loadingDiv = document.getElementById('loading');
+      if (loadingDiv) loadingDiv.textContent = LOADING_TEXT[lang];
 
       try {
         const response = await fetch(`${mdPath}?t=${new Date().getTime()}`);
-        
+
         if (!response.ok) {
           throw new Error(`找不到檔案或 HTTP 錯誤 (${response.status})`);
         }
 
         const markdownText = await response.text();
+
+        // ⚠️ 本站的 not_found_handling 是 single-page-application：
+        // 不存在的路徑會回 200 + 這份 index.html，所以 response.ok 永遠為 true。
+        // 不擋掉的話，打錯的路徑會把 index.html 自己當成 markdown 算繪，
+        // 畫面會停在「載入中」而不是顯示 404 —— 看起來像壞掉但沒有任何錯誤訊息。
+        const contentType = response.headers.get('content-type') || '';
+        const looksLikeHTML = contentType.includes('text/html')
+          || /^\s*<(!doctype|html)\b/i.test(markdownText);
+        if (looksLikeHTML) {
+          throw new Error(`目標 Markdown 檔案不存在（回傳的是 index.html）`);
+        }
 
         marked.setOptions({
           gfm: true,
@@ -89,9 +167,10 @@
       } catch (error) {
         contentDiv.innerHTML = `
           <div style="color: #cf222e; padding: 20px; border: 1px solid #ff8182; border-radius: 6px; background-color: #ffebe9;">
-            <h3 style="margin-top:0;">404 - 找不到頁面</h3>
+            <h3 style="margin-top:0;">404 - 找不到頁面 / Page not found</h3>
             <p>無法讀取目標檔案：<code>${mdPath}</code></p>
             <p>請確認 GitHub 儲存庫的對應路徑下是否存在該 Markdown 檔案。</p>
+            <p><a href="/ios">繁體中文</a> · <a href="/ios.en">English</a> · <a href="/ios.ja">日本語</a> · <a href="/ios.ko">한국어</a></p>
           </div>
         `;
       }

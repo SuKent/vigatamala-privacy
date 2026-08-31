@@ -1,9 +1,9 @@
 # Vigatamala 隱私政策
 
+[繁體中文](/ios.zh-Hant) · [简体中文](/ios.zh-Hans) · [English](/ios.en) · [日本語](/ios.ja) · [한국어](/ios.ko)
+
 **最後更新:2026-08-30**
 **適用對象:Vigatamala for iOS**
-
-*English version below — [jump to English](#privacy-policy-english).*
 
 ---
 
@@ -208,9 +208,10 @@ HTTPS 強制、cookie 橫幅、夜間模式、桌面版網頁)。兩個例外要
 
 - **User-Agent 沒有關閉選項。** App 一律以與 Safari 一致的字串自我介紹
   (盾牌選單的「桌面版網頁」只是換成 macOS Safari 的版本,不是關掉它)。
-  這是刻意的:一個認不出來的瀏覽器字串會讓部分網站直接拒絕服務或給你
-  閹割版頁面,而它送出的資訊比預設值**更少**辨識度 —— 它讓你看起來
-  和其他所有 Safari 使用者一樣,而不是「某個小眾瀏覽器的使用者」。
+  這是刻意的,有兩個理由:一個認不出來的瀏覽器字串會讓部分網站直接拒絕
+  服務或給你閹割版頁面;而且**與 Safari 一致的字串**送出的辨識資訊,
+  其實比 **WKWebView 的預設字串更少** —— 它讓你看起來和其他所有 Safari
+  使用者一樣,而不是「某個小眾瀏覽器的使用者」。
 - **Global Privacy Control 只有全域開關**(它是一個對所有網站一致的法律訊號,
   逐站送不送反而沒有意義)。技術限制也一併講明:`Sec-GPC` 標頭只掛得上
   App 自己發起的主框架請求,iOS 的網頁引擎不提供為頁面內的子資源請求
@@ -248,237 +249,10 @@ HTTPS 強制、cookie 橫幅、夜間模式、桌面版網頁)。兩個例外要
 
 有任何疑問請寄到:**vigatamala@link2us.link**
 
-開發者:**神農工作室**
+開發者:**Su Shih-neng**
 
----
 ---
 
 <a name="privacy-policy-english"></a>
 
-# Privacy Policy (English)
-
-**Last updated: 30 August 2026**
-**Applies to: Vigatamala for iOS**
-
-## In short
-
-**Vigatamala does not send your browsing data to us.**
-
-We run no account servers. The app contains no analytics, telemetry, crash
-reporting or advertising components, and no third-party packages of any kind.
-Which sites you visit, what you watch and what you search for stay on your iPhone.
-
-## 1. What we cannot receive
-
-- **We have no account backend and receive none of your browsing data.** The only
-  request the app makes to a domain of ours **on its own initiative** is to download
-  blocking rule lists (see section 3, item 1). It carries the filename being
-  requested — no URL you visited, no account or device identifier. (The "Privacy
-  policy" link in Settings → About, and the mirror link on the blocking-rule
-  licence page, point at the same domain, but those are ordinary web links: they
-  go nowhere until you tap them, exactly like opening any URL in any browser.)
-  Nothing else connects to us.
-- **No third-party SDKs** — no Google Analytics, Firebase, Crashlytics, Sentry
-  or ad networks.
-- **No advertising identifier (IDFA)** and no tracking permission prompt.
-- **No location access.**
-- **Address bar suggestions are computed entirely on device** by matching what
-  you type against your local history and bookmarks. Most browsers send your
-  keystrokes to a search engine for suggestions. We do not.
-- **Ad and tracker blocking decisions happen on device.** We never send the URL
-  you are opening to a server of ours. (iOS's built-in fraudulent website
-  warning is separate — see item (6) in section 3.)
-
-## 2. Data stored on your device
-
-Browsing history (full URLs, titles, timestamps; newest 2,000), open tabs,
-bookmarks, reading list (URLs only — never article text), playback queues,
-watch positions (90 days or 500 entries), preferences including any per-site
-exceptions you set, per-tab interaction state (each tab's back/forward list —
-which contains URLs — and scroll position; never written to disk for private
-tabs), website data (cookies, caches) managed by WebKit in a **separate store
-per tab**, and rule-update bookkeeping (when each list was last refreshed, how
-many rules it held, and whether it came from the unsigned fallback). Two further
-items hold no data of yours: the **downloaded rule lists themselves** (~14 MB of
-cache, plus roughly 53 MB of compiled output WebKit keeps alongside it, all
-overwritten at the next update) and the **diagnostic log** (off by default;
-see section 3 — capped at roughly 600 KB, and deleted the moment you turn the
-switch off). None of it is sent to us or to any third party.
-
-**Purchase records are not kept here, and we do not keep a copy.** Your
-subscription status is held by Apple's App Store; the app simply asks the system
-whether this Apple ID currently has an active subscription. Transaction
-identifiers, billing dates and remaining entitlement days are **not** stored on
-your device by us, and there is no server of ours that could store them.
-
-**One item lives in the Keychain rather than in a file: a randomly generated
-install identifier.** It is a random string containing no personal data, and no
-code in the app sends it anywhere today. Two things about it are worth knowing:
-Apple does **not** guarantee that Keychain items are removed when you delete an
-app (in practice they usually survive), and we deliberately do not mark it
-device-only, so restoring an encrypted backup carries the same value to a new
-iPhone — that is so a phone upgrade counts as the same installation rather than
-a new device. If we ever start using it to link devices to an account, we will
-update this policy first (see section 8).
-
-Deletion: Settings → Data → Clear browsing history (which also clears watch
-positions and the saved per-tab interaction state) and Clear all website data.
-Tabs, bookmarks and the reading list have their own removal actions — clearing
-history does not remove them.
-
-To be straightforward about one thing: if you use iCloud Backup or back up your
-iPhone to a computer, **most** of these files are copied as part of that **system
-backup**. That is Apple's mechanism; we cannot read its contents. We deliberately
-do not exclude bookmarks, history and tabs from backup — doing so would lose them
-when you move to a new phone. **Two exceptions we do exclude:** the rule-list
-cache (derived data you can always re-download) and the diagnostic log (it
-contains hosts you visited, so it has no business leaving this device).
-
-Note that search terms persist as part of the search URL recorded in history.
-
-## 3. Outbound connections the app makes
-
-1. **Blocking rule downloads/updates → `privacy.link2us.link` (fallback:
-   `easylist.to`).** The large public EasyList/EasyPrivacy lists are **not bundled
-   with the app**; you download them yourself. By default they come from our mirror
-   at `https://privacy.link2us.link/rules/` as pre-converted, signed files (verified
-   on device); only if the mirror is unavailable does the app fall back to fetching
-   the raw lists from `easylist.to` and converting them locally.
-
-   **When:** the app asks once on first launch (you may decline), and Settings →
-   Content Blocking has a download button at any time. **Neither requires a
-   subscription.** What the subscription buys is *automatic* updating (off by
-   default), which checks at most once per 24 hours.
-
-   **What the request carries:** only the filename. No URL you visited, no account
-   or device identifier, and an isolated network configuration with no cookies and
-   no cache. The one extra header is `If-None-Match`, a file-version tag from the
-   previous download — it identifies the file, not you, and is identical for
-   everyone holding that version.
-
-   **What reaches us:** this is the only request in this policy that goes to a
-   domain of ours, so to be explicit — as with any web server, the connection
-   carries your IP address, user-agent string, time and the requested filename.
-   That domain is static file hosting (Cloudflare); we run no code of our own on
-   it and **we do not export or retain per-request logs anywhere**. What we can see
-   is the provider's aggregate traffic statistics (request counts, cache hit rate),
-   which contain no individual users. Your IP is still processed by the provider in
-   the course of delivery and abuse prevention — unavoidable in any connection.
-   When the upstream fallback is used, it is EasyList's infrastructure (a third
-   party) that sees your IP, outside our hands.
-2. **Lock screen artwork → the image host the page specifies.** This is the only third-party connection that can
-   happen while you are not actively looking at a page — it fires with the app in
-   the background and the screen locked. It uses an isolated configuration with no cookies or cache, and
-   **private tabs fetch no artwork and publish nothing to the lock screen**.
-   To disable entirely: Settings → Media → Lock screen controls (this also
-   disables lock screen and Control Center playback info and controls).
-3. **Feed (RSS/Atom) fetching → the feed URL you tapped.** The feed page is an
-   ordinary tab, so it is fetched again when you reload it or when that tab is
-   restored at next launch. Isolated configuration, no cookies, no cache,
-   parsed in memory only.
-4. **Images inside reader view → the article's own sources.** Reader view
-   applies the same blocking rules and uses the same per-tab store as the tab it
-   came from.
-5. **In-app purchases → Apple (StoreKit)**, only when you buy or restore. The
-   round trip is with Apple, not with us. Transaction records are held by
-   StoreKit, Apple's own system component; **we keep no separate copy on your
-   device** and have no server that could keep one. The app only asks the system
-   whether this Apple ID currently has an active subscription, and gets back a
-   yes/no plus an expiry date.
-6. **Fraudulent website warning → Apple.** iOS's built-in web engine checks the
-   URLs you visit against Apple's list of known fraudulent sites. This is a
-   system-level feature; the query goes to Apple and we can neither see nor
-   influence it. We keep it on — turning it off would shorten this policy but
-   leave you less protected.
-
-The app makes no other outbound connections.
-
-**(Optional) Issue reports.** Settings → About → "Report a problem" opens
-**your own** mail composer (or the share sheet) addressed to our support
-mailbox. The app transmits nothing by itself — the body and attachment are
-fully visible before sending, and it is you who taps send. Besides what you
-write, the message is prefilled with three lines: app version, iOS version and
-device model (e.g. "iPhone") — no serial number, no identifier of any kind, and
-you can delete them before sending.
-
-The attachment is the diagnostic log (Settings → Privacy, **off by default**),
-which records feature events only (playback, blocking, fullscreen and the like).
-URLs are redacted **as they are written to disk**, not at send time:
-
-- ordinary tabs: only `https://host` survives; path and query become "…";
-- **private tabs: not even the host** — the whole URL becomes "‹私密›";
-- credentials embedded in a URL (`https://user:password@…`) are stripped before
-  either of the above runs.
-
-Turning the switch off deletes the log. Reports we receive are used solely for
-debugging, are not linked to any other data, are not shared, and are deleted
-within 90 days of resolution.
-
-## 4. Private tabs
-
-Private tabs are excluded from history and from the saved tab list, use an
-in-memory-only website data store (including in reader view), keep their
-playback queue in memory only, and publish nothing to the lock screen. Actions
-you take deliberately — adding a bookmark or saving to the reading list — do
-still save that URL.
-
-## 5. What we change on web pages
-
-We block network requests and hide elements using public rule lists; intercept a
-page's own data requests to remove ad slots (which means we read and modify part
-of what the site sends); block popups and back-button hijacking; report
-noise-adjusted fingerprinting values; send Global Privacy Control; dismiss
-cookie consent banners — **always declining, never accepting**; dismiss
-"open in app" promotion walls — pressing the site's own "not now" option when one
-exists and merely hiding the overlay when it does not (**we never press the
-promotion button**, and overlays containing a password field are left alone);
-rewrite URLs before the request is sent (stripping tracking-only parameters,
-unwrapping Google AMP shells, upgrading http to https — a failed upgrade asks
-rather than silently downgrading); send a Safari-matching User-Agent string; and,
-if you enable night mode, invert colours on light pages. Where a consent platform
-or site records the choice we declined on your behalf, that is its behaviour, not
-a request we initiate.
-
-**Except for the User-Agent, every one of these can be turned off globally**, and
-most can additionally be turned off per site from the shield menu (blocking,
-tracker blocking, cosmetic cleanup, anti-hijacking, fingerprint protection,
-HTTPS-only, cookie banners, night mode, desktop mode). Two exceptions, stated
-plainly:
-
-- **The User-Agent has no off switch.** The app always identifies itself as
-  Safari (the shield menu's "desktop site" only swaps in the macOS Safari
-  version; it does not disable it). This is deliberate: an unrecognised browser
-  string gets you refused or served a degraded page by some sites, and it carries
-  *less* identifying information than the alternative — it makes you look like
-  every other Safari user rather than like the user of a niche browser.
-- **Global Privacy Control is global only** — it is a consistent legal signal, so
-  a per-site version would be meaningless. One technical limit, stated plainly:
-  the `Sec-GPC` header can only be attached to main-frame requests the app itself
-  issues, because iOS's web engine offers no way to add headers to a page's own
-  subresource requests; `navigator.globalPrivacyControl` applies to the whole page.
-
-## 6. What we never do
-
-We do not sell, share or rent your data — we do not have it. We insert no
-advertising, affiliate links or sponsored content. We do not track you across
-apps or websites. We provide no content download or offline storage.
-
-## 7. Children
-
-This app is not directed at children under 13 and does not knowingly collect
-personal information from children.
-
-Its App Store age rating is **16+**. That follows from being a general-purpose
-browser: it can open any web page ("Unrestricted Web Access" in Apple's
-questionnaire), for which the minimum rating is 16+. Every mainstream browser
-carries the same rating.
-
-## 8. Changes
-
-When we introduce accounts, cross-device sync or student verification, what is
-collected will change. We will update this policy and notify you in the app.
-**None of those features exist today.**
-
-## 9. Contact
-
-**vigatamala@link2us.link** — **SanLong Studio**
+*The English version has moved to [/ios.en](/ios.en).*
