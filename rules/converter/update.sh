@@ -82,6 +82,6 @@ NOTICE
   sign "rules/$name.json"
 }
 
-process easylist    "https://easylist.to/easylist/easylist.txt"    45000 "EasyList"
-process easyprivacy "https://easylist.to/easylist/easyprivacy.txt" 45000 "EasyPrivacy"
+process easylist    "https://easylist.to/easylist/easylist.txt"    65000 "EasyList"
+process easyprivacy "https://easylist.to/easylist/easyprivacy.txt" 65000 "EasyPrivacy"
 echo "完成"
