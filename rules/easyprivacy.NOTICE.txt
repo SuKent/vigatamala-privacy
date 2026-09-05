@@ -20,10 +20,10 @@ EasyPrivacy —— Safari content blocker 改作版
   https://easylist.to/easylist/easyprivacy.txt
 
 上游檔頭的著作權通知(逐字保留)
-  Version: 202609042132
+  Version: 202609052123
   Title: EasyPrivacy
-  Last modified: 04 Sep 2026 21:32 UTC
+  Last modified: 05 Sep 2026 21:23 UTC
   Expires: 4 days (update frequency)
-  Commit: 3192d75548b912a3c6682c45634d46de73f21c9d
+  Commit: 90a2e4f1b4d2059341ac59b24863b7243f1961b7
   Homepage: https://easylist.to/
   Licence: https://easylist.to/pages/licence.html
