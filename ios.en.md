@@ -37,7 +37,8 @@ Including a few places where we have not done well enough yet.
 - **No location access.** The app holds no location permission of any kind.
 - **Address bar suggestions are computed entirely on device** by matching what
   you type against your local history and bookmarks. Most browsers send your
-  keystrokes to a search engine for suggestions. We do not.
+  keystrokes to a search engine for suggestions. We do not. (A private tab shows
+  **nothing at all** until you start typing — see section 4.)
 - **Ad and tracker blocking decisions happen on device.** We never send the URL
   you are opening to a server of ours. (iOS's built-in fraudulent website
   warning is separate — see item (6) in section 3 — that is a system-level
@@ -67,7 +68,7 @@ and the **diagnostic log** (it contains hosts you visited — same reason).
 |---|---|---|---|
 | Browsing history | Full URLs, titles, timestamps | Newest 2,000 | Settings → "Data" → "Clear browsing history"; or "Clear" at the top right of the history page |
 | Tabs | URL, title, custom name, pinned state, group membership (group name and color) | No limit | Close the tab, or "Close all tabs" in the tab switcher menu (pinned tabs are skipped) |
-| Bookmarks | URL, title, time added | No limit | "Bookmarks" under Shortcuts on the home page → swipe left to delete on the list; or "Reorder" at the top right, then delete in edit mode |
+| Bookmarks | URL, title, time added, **whether it was saved from a private tab** | No limit | "Bookmarks" under Shortcuts on the home page → swipe left to delete on the list; or "Reorder" at the top right, then delete in edit mode |
 | Reading list | URL, title, timestamp (**never the article text**) | No limit | Swipe left to delete on the list page; "Clear read" at the top right |
 | Playback queue | Media URL, title, artist, artwork URL (**private tabs keep theirs in memory only**) | No limit | Swipe left to delete in the queue panel; closing that tab discards the whole queue |
 | Watch positions | Media identifier, playback position | 90 days or 500 entries | Cleared along with "Clear browsing history" |
@@ -153,10 +154,13 @@ Note that this switch also disables lock screen and Control Center playback info
 and controls.
 
 **(3) Feed (RSS/Atom) fetching → the feed URL you tapped**
-This happens when you tap the feed icon in the address bar. The feed page is an
-**ordinary tab**, so it is fetched again when you reload it or when that tab is
+This happens when you tap the feed icon in the address bar. The feed page is a
+**real tab**, so it is fetched again when you reload it or when that tab is
 restored at next launch. It uses an isolated network configuration, no cookies,
 no cache, and the content is parsed in memory only, never landing on disk.
+**Opened from a private tab, the tab it opens is private too** — that address has
+the site you are reading embedded in it, so opening it as a normal tab would write
+it into your browsing history.
 
 **(4) Images inside reader view → the article's own source and its image hosts**
 Reader view still loads the original article's images after reflowing. It applies
@@ -214,11 +218,26 @@ The app makes no other outbound connections.
 - No title or artwork is published to the lock screen, Control Center or a car
   display.
 - The playback queue stays in memory only and is never written to disk.
+- **The address bar suggests nothing until you start typing.** In a normal tab,
+  focusing the address bar lists the places you visit most (from your local
+  history and bookmarks); in a private tab it does not — that would hand your
+  frequently-visited list to whoever is holding the phone. Once you type, it
+  still matches (entirely on device). To turn off that half too, see
+  Settings → Privacy → "No local suggestions in private tabs".
+- **While any private tab is open, the multitasking preview is covered.** iOS
+  takes a full-screen snapshot of its own when an app goes to the background;
+  we cover the screen before it does.
 
 **Actions you take deliberately still leave traces:** adding a bookmark or saving
 to the reading list from a private tab writes that URL into the corresponding
 list. This is intentional — we will not quietly discard something you explicitly
 asked us to keep. But it is worth knowing.
+
+**We do, however, remember that it came from a private tab, and reopen it in a
+private tab.** Otherwise one tap on a bookmark would put that URL into your
+browsing history and its cookies into the normal store — without you having made
+any further choice. (Since 2026-09-07; bookmarks saved before that carry no such
+information and are treated as coming from a normal tab.)
 
 ---
 
