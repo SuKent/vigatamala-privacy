@@ -67,7 +67,7 @@ and the **diagnostic log** (it contains hosts you visited — same reason).
 |---|---|---|---|
 | Browsing history | Full URLs, titles, timestamps | Newest 2,000 | Settings → "Data" → "Clear browsing history"; or "Clear" at the top right of the history page |
 | Tabs | URL, title, custom name, pinned state, group membership (group name and color) | No limit | Close the tab, or "Close all tabs" in the tab switcher menu (pinned tabs are skipped) |
-| Bookmarks | URL, title, time added | No limit | Remove them one at a time from the bookmark grid on the home page |
+| Bookmarks | URL, title, time added | No limit | "Bookmarks" under Shortcuts on the home page → swipe left to delete on the list; or "Reorder" at the top right, then delete in edit mode |
 | Reading list | URL, title, timestamp (**never the article text**) | No limit | Swipe left to delete on the list page; "Clear read" at the top right |
 | Playback queue | Media URL, title, artist, artwork URL (**private tabs keep theirs in memory only**) | No limit | Swipe left to delete in the queue panel; closing that tab discards the whole queue |
 | Watch positions | Media identifier, playback position | 90 days or 500 entries | Cleared along with "Clear browsing history" |
