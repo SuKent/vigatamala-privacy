@@ -149,9 +149,10 @@ actively looking at a page** — it fires with the app in the background and the
 screen locked. We hold it to a minimum: it uses an isolated network configuration
 with no cookies or cache, and **private tabs fetch no artwork and publish nothing
 to the lock screen**.
-To disable entirely: Settings → Media → Lock screen controls.
-Note that this switch also disables lock screen and Control Center playback info
-and controls.
+To disable entirely: Settings → Media → Show Track on Lock Screen (called
+“Lock screen controls” in version 1.1 and earlier).
+When off, the lock screen, Control Center and car displays show none of the track
+info or artwork we publish; playback and its controls are unaffected.
 
 **(3) Feed (RSS/Atom) fetching → the feed URL you tapped**
 This happens when you tap the feed icon in the address bar. The feed page is a
