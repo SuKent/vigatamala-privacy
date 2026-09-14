@@ -20,10 +20,10 @@ EasyList —— Safari content blocker 改作版
   https://easylist.to/easylist/easylist.txt
 
 上游檔頭的著作權通知(逐字保留)
-  Version: 202609132129
+  Version: 202609142120
   Title: EasyList
-  Last modified: 13 Sep 2026 21:29 UTC
+  Last modified: 14 Sep 2026 21:20 UTC
   Expires: 4 days (update frequency)
-  Commit: f27b3a8983da2c3fb1e9263b7c4b0314722c1686
+  Commit: 9f904a5ada6559a99855b8237c2049eedb972774
   Homepage: https://easylist.to/
   Licence: https://easylist.to/pages/licence.html
