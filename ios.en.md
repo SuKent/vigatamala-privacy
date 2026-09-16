@@ -11,7 +11,7 @@
 
 **Vigatamala does not send your browsing data to us.**
 
-We run no account servers. The app contains no analytics, telemetry, crash
+Builds with CISIP integration use our account and subscription server (section 3). The app contains no analytics, telemetry, crash
 reporting or advertising components, and no third-party packages of any kind.
 Which sites you visit, what you watch and what you search for stay on your iPhone.
 
@@ -23,14 +23,7 @@ Including a few places where we have not done well enough yet.
 
 ## 1. What we cannot receive
 
-- **We have no account backend and receive none of your browsing data.** The only
-  request the app makes to a domain of ours **on its own initiative** is to download
-  blocking rule lists (see section 3, item 1). It carries the filename being
-  requested — no URL you visited, no account or device identifier. (The "Privacy
-  policy" link in Settings → About, and the mirror link on the blocking-rule
-  licence page, point at the same domain, but those are ordinary web links: they
-  go nowhere until you tap them, exactly like opening any URL in any browser.)
-  Nothing else connects to us.
+- **We do not receive browsing data.** The app downloads rule lists from our domain and, in CISIP-enabled builds, registers the installation and synchronizes subscriptions. Rule requests carry no account identifier. Account requests contain only the identity and transaction data described below. Privacy-policy and licence links remain ordinary pages opened when tapped.
 - **No third-party SDKs** — no Google Analytics, Firebase, Crashlytics, Sentry
   or ad networks.
 - **No advertising identifier (IDFA)** and no tracking permission prompt.
@@ -48,8 +41,7 @@ Including a few places where we have not done well enough yet.
 
 ## 2. Data stored on your device
 
-All of the following is stored inside the app's private container and is **never
-sent to us or to any third party**.
+The browsing data in the table stays on your device. **The install identifier and subscription sync data are exceptions**, described in section 3.
 
 To be straightforward about one thing: if you use iCloud Backup or back up your
 iPhone to a computer, **most** of these files are copied as part of that **system
@@ -80,7 +72,7 @@ and the **diagnostic log** (it contains hosts you visited — same reason).
 | Rule-update bookkeeping | Time of the last update, number of rules, and whether the unsigned fallback was used | No limit | No deletion entry point today (deleting the app removes it) |
 | Rule-list cache | The downloaded blocking rules themselves (~14 MB; WebKit keeps a separate compiled output of roughly 53 MB), **containing none of your data** | Overwritten at the next update | No deletion entry point today (deleting the app removes it); **excluded from backup** |
 | Diagnostic log | **Off by default.** Once on, it records feature events; ordinary tabs keep only the site host, private tabs not even the host | Capped at roughly 600 KB; past that only the later half is kept | Settings → "Privacy" → turn off "Diagnostic log", which **deletes the whole log**; **excluded from backup** |
-| Install identifier | One randomly generated UUID, stored in the Keychain rather than in a file. Contains no personal data | No limit | See point 4 below — **deleting the app does not guarantee its removal** |
+| Install identifier | One randomly generated UUID, stored in the Keychain rather than in a file. Contains no name or email, but links purchases | No limit | See point 4 below — **deleting the app does not guarantee its removal** |
 
 **Four things to know:**
 
@@ -89,21 +81,9 @@ and the **diagnostic log** (it contains hosts you visited — same reason).
    URL is recorded in your browsing history. Clearing history removes it too.
 2. **"Clear browsing history" does not clear tabs, bookmarks or the reading
    list.** Those three each have their own removal action (see the table above).
-3. **Purchase records are not kept here, and we do not keep a copy.** Your
-   subscription status is held by Apple's App Store; the app simply asks the system
-   whether this Apple ID currently has an active subscription. Transaction
-   identifiers, billing dates and remaining entitlement days are **not** stored on
-   your device by us, and there is no server of ours that could store them.
-4. **The install identifier may still be there after you delete the app, and it
-   travels with an encrypted backup to a new device.** It lives in the Keychain,
-   and Apple does **not** guarantee that Keychain items are removed when you
-   delete an app (in practice they usually survive). We also deliberately do not
-   mark it device-only, so restoring an encrypted backup carries the same value
-   to a new iPhone — that is so a phone upgrade counts as the same installation
-   rather than a new device. It is a random string containing no personal data,
-   and **no code in the app sends it off the device today**. If we ever start
-   using it to link devices to an account, we will update this policy first
-   (see section 8) before doing so.
+3. **Apple holds subscription transactions, and CISIP also receives subscription records.** The app keeps signed transactions awaiting delivery for retry, removes them after success, and excludes this queue from backup. The backend stores device/account associations, subscriptions and transactions for purchase verification, restoration and refunds.
+4. **The install UUID and session token are stored in Keychain.** The app does not deliberately replace the UUID on launch, browser-data clearing or reinstall. Apple does not guarantee Keychain survival after deletion; erasing a device can remove it. Encrypted backups may carry the same UUID to another device. The UUID contains no name or email but links an installation account and purchases; it is not unlinkable anonymous data.
+
 
 ---
 
@@ -130,8 +110,7 @@ no cache. The one extra header is `If-None-Match`, a file-version tag from the
 previous download — it identifies the file, not you, and is identical for
 everyone holding that version.
 
-**What reaches us:** this is the only request in this policy that goes to a
-domain of ours, so to be explicit — as with any web server, the connection
+**What reaches us:** as with any web server, the connection
 carries your IP address, user-agent string, time and the requested filename.
 That domain is static file hosting (Cloudflare); we run no code of our own on
 it and **we do not export or retain per-request logs anywhere**. What we can see
@@ -169,11 +148,8 @@ the same blocking rules as that tab and uses that tab's own store (so a private
 tab's reader view likewise leaves nothing on disk).
 
 **(5) In-app purchases → Apple (StoreKit)**
-Only when you buy or restore. The round trip is with Apple, not with us.
-Transaction records are held by StoreKit, Apple's own system component; **we keep
-no separate copy on your device** and have no server that could keep one. The app
-only asks the system whether this Apple ID currently has an active subscription,
-and gets back a yes/no plus an expiry date.
+Apple StoreKit handles purchasing and restoration. In-app purchases carry the same install UUID used for CISIP registration as appAccountToken; Apple stores it with the transaction. The app also reads subscription information on launch, foregrounding and transaction updates, and synchronizes it as described below.
+
 
 **(6) Fraudulent website warning → Apple**
 iOS's built-in web engine checks the URLs you visit against Apple's list of known
@@ -204,6 +180,10 @@ debugging, are not linked to any other data, are not shared, and are deleted
 within 90 days of resolution.
 
 The app makes no other outbound connections.
+
+**(7) Device accounts and subscription sync → `apple.link2us.link` (CISIP-enabled builds)**
+On launch or foregrounding, the app sends the install UUID, app bundle ID and platform ios over HTTPS to create or recover a device account. Subsequent requests use the session token saved in Keychain. For Plus transactions it sends transaction and original transaction IDs, product ID, production/sandbox environment, any existing appAccountToken, and the Apple-signed transaction. The backend verifies with Apple and, where needed, adds a token to an externally redeemed transaction and queries subscription status again. **No browsing history, URLs, searches, bookmarks, viewed media or location are sent.** Connection services still process necessary connection information such as IP addresses. This data is used for account association and subscription service, not advertising tracking. Deleting the app or browser data does not delete backend records; contact the address in section 9 for account-data access or deletion. Account and transaction records are retained as needed to provide service and handle purchase disputes. Older builds without CISIP do not make these requests.
+
 
 ---
 
@@ -316,9 +296,8 @@ carries the same rating.
 
 ## 8. Changes
 
-When we introduce accounts, cross-device sync or student verification, what is
-collected will change. We will update this policy and notify you in the app.
-**None of those features exist today.**
+This update adds device accounts and subscription synchronization. Cross-device browsing-data sync and student verification are not yet available in the app. We will update this policy and notify you in the app when new data uses are introduced.
+
 
 ---
 
