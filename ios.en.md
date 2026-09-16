@@ -34,7 +34,7 @@ Including a few places where we have not done well enough yet.
 - **No third-party SDKs** — no Google Analytics, Firebase, Crashlytics, Sentry
   or ad networks.
 - **No advertising identifier (IDFA)** and no tracking permission prompt.
-- **No location access.** The app holds no location permission of any kind.
+- **Website location requests (in builds that support this feature).** When a website requests your location, iOS and WebKit handle permission prompts. You decide whether to allow access. Only while-in-use location permission is requested, never always-on location access. An approved website can receive your location and handles it under its own privacy policy. Vigatamala does not collect, store, or send your coordinates to us. You can revoke app location access in iOS Settings. Older builds do not request location access.
 - **Address bar suggestions are computed entirely on device** by matching what
   you type against your local history and bookmarks. Most browsers send your
   keystrokes to a search engine for suggestions. We do not. (A private tab shows
