@@ -2,7 +2,7 @@
 
 [繁體中文](/ios.zh-Hant) · [简体中文](/ios.zh-Hans) · [English](/ios.en) · [日本語](/ios.ja) · [한국어](/ios.ko)
 
-**Last updated: 30 August 2026**
+**Last updated: 16 September 2026**
 **Applies to: Vigatamala for iOS**
 
 ---
