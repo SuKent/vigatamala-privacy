@@ -2,7 +2,7 @@
 
 [繁體中文](/ios.zh-Hant) · [简体中文](/ios.zh-Hans) · [English](/ios.en) · [日本語](/ios.ja) · [한국어](/ios.ko)
 
-**Last updated: 16 September 2026**
+**Last updated: 18 September 2026**
 **Applies to: Vigatamala for iOS**
 
 ---
@@ -71,7 +71,7 @@ and the **diagnostic log** (it contains hosts you visited — same reason).
 | Per-tab interaction state | Each tab's back/forward list (which contains URLs) and scroll position (**never written to a file for private tabs**) | Lives as long as the tab | Closing that tab deletes it; "Clear browsing history" also clears this copy from disk |
 | Rule-update bookkeeping | Time of the last update, number of rules, and whether the unsigned fallback was used | No limit | No deletion entry point today (deleting the app removes it) |
 | Rule-list cache | The downloaded blocking rules themselves (~14 MB; WebKit keeps a separate compiled output of roughly 53 MB), **containing none of your data** | Overwritten at the next update | No deletion entry point today (deleting the app removes it); **excluded from backup** |
-| Diagnostic log | **Off by default.** Once on, it records feature events; ordinary tabs keep only the site host, private tabs not even the host | Capped at roughly 600 KB; past that only the later half is kept | Settings → "Privacy" → turn off "Diagnostic log", which **deletes the whole log**; **excluded from backup** |
+| Diagnostic log | **Off by default.** While off, only this session's most recent 100 events stay in memory, keeping not even the site host; once on, they are written to a file where ordinary tabs keep the site host and private tabs not even the host | In memory: 100 events, gone when you close the app. File: capped at roughly 600 KB; past that only the later half is kept | Settings → "Privacy" → turn off "Diagnostic log", which **deletes both**; **excluded from backup** |
 | Install identifier | One randomly generated UUID, stored in the Keychain rather than in a file. Contains no name or email, but links purchases | No limit | See point 4 below — **deleting the app does not guarantee its removal** |
 
 **Four things to know:**
@@ -162,22 +162,40 @@ item but leave you less protected.
 **your own** mail composer (or the share sheet) addressed to our support
 mailbox. The app transmits nothing by itself — the body and attachment are
 fully visible before sending, and it is you who taps send. Besides what you
-write, the message is prefilled with three lines: app version, iOS version and
-device model (e.g. "iPhone") — no serial number, no identifier of any kind, and
-you can delete them before sending.
+write, the message is prefilled with four lines: app version, build time, iOS
+version and device model (e.g. "iPhone") — no serial number, no identifier of
+any kind, and you can delete them before sending.
 
-The attachment is the diagnostic log (Settings → Privacy, **off by default**),
-which records feature events only (playback, blocking, fullscreen and the like).
-URLs are redacted **as they are written to disk**, not at send time:
+The message carries **diagnostic content**, which records feature events only
+(playback, blocking, fullscreen and the like). It takes one of two forms,
+depending on whether you have turned on Settings → Privacy → Diagnostic Logging
+(**off by default**):
+
+**While off (the default):** nothing is written to any file. Only **this
+session's** most recent 100 events stay in memory, so that a report can at least
+say what happened. That content keeps **not even the site's host** — every
+address becomes "‹網址›" and only the event names remain. It is never written to
+disk, never enters a backup, disappears when you close the app, and leaves your
+device only when you yourself send a report.
+
+**While on:** events are written to a log file on your device (capped at roughly
+600 KB; past that only the newer half is kept) and sent as an attachment or
+inline. URLs are redacted **as they are written to disk**, not at send time:
 
 - ordinary tabs: only `https://host` survives; path and query become "…";
 - **private tabs: not even the host** — the whole URL becomes "‹私密›";
 - credentials embedded in a URL (`https://user:password@…`) are stripped before
   either of the above runs.
 
-Turning the switch off deletes the log. Reports we receive are used solely for
-debugging, are not linked to any other data, are not shared, and are deleted
-within 90 days of resolution.
+Turning the switch off deletes the log file, and clears the in-memory copy too.
+
+⚠️ Tapping "Share with us" or "Open in Gmail" also copies the full content to
+the **system clipboard**, so that you can paste it into your message (with
+Gmail, iOS does not let the app attach a file directly). Other apps on iOS can
+read the clipboard; copying anything else replaces it.
+
+Reports we receive are used solely for debugging, are not linked to any other
+data, are not shared, and are deleted within 90 days of resolution.
 
 The app makes no other outbound connections.
 
