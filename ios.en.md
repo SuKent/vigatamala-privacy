@@ -292,8 +292,9 @@ plainly:
 
 ## 6. What we never do
 
-- We do not sell, share or rent any of your data — we do not have it in the
-  first place.
+- We do not sell, share or rent any of your data. **We never receive your browsing data**;
+  the account and subscription data described in section 3 is used only to provide that
+  service and is not passed to third parties.
 - We insert no advertising, affiliate links or sponsored content.
 - We do not track you across apps or websites.
 - We provide no content download or offline storage.
