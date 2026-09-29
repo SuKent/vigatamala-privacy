@@ -2,7 +2,7 @@
 
 [繁體中文](/ios.zh-Hant) · [简体中文](/ios.zh-Hans) · [English](/ios.en) · [日本語](/ios.ja) · [한국어](/ios.ko)
 
-**Last updated: 21 September 2026**
+**Last updated: 29 September 2026**
 **Applies to: Vigatamala for iOS**
 
 ---
@@ -13,10 +13,10 @@
 
 Builds with CISIP integration use our account and subscription server (section 3). The app contains no analytics, telemetry, crash
 reporting or advertising components, and no third-party packages of any kind.
-Which sites you visit, what you watch and what you search for stay on your iPhone.
+Which sites you visit, what you watch and what you search for stay on the device you use.
 
 The rest of this policy sets out three things: **what actually stays on your
-phone**, **where the app connects on its own**, and **how you delete it**.
+device**, **where the app connects on its own**, and **how you delete it**.
 Including a few places where we have not done well enough yet.
 
 ---
@@ -44,10 +44,10 @@ Including a few places where we have not done well enough yet.
 The browsing data in the table stays on your device. **The install identifier and subscription sync data are exceptions**, described in section 3.
 
 To be straightforward about one thing: if you use iCloud Backup or back up your
-iPhone to a computer, **most** of these files are copied as part of that **system
+iPhone or iPad to a computer, **most** of these files are copied as part of that **system
 backup**. That is Apple's mechanism; we cannot read its contents, and have no way
 to. We deliberately do not exclude bookmarks, history and tabs from backup —
-doing so would lose them when you move to a new phone.
+doing so would lose them when you move to a new device.
 
 **Four exceptions we do exclude** from backup: the **rule-list cache** (derived
 data you can always re-download, with no reason to take up your iCloud storage),
@@ -162,8 +162,8 @@ item but leave you less protected.
 **your own** mail composer (or the share sheet) addressed to our support
 mailbox. The app transmits nothing by itself — the body and attachment are
 fully visible before sending, and it is you who taps send. Besides what you
-write, the message is prefilled with four lines: app version, build time, iOS
-version and device model (e.g. "iPhone") — no serial number, no identifier of
+write, the message is prefilled with four lines: app version, build time, operating system
+version and device model (e.g. "iPhone" or "iPad") — no serial number, no identifier of
 any kind, and you can delete them before sending.
 
 The message carries **diagnostic content**, which records feature events only
