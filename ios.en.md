@@ -2,7 +2,7 @@
 
 [繁體中文](/ios.zh-Hant) · [简体中文](/ios.zh-Hans) · [English](/ios.en) · [日本語](/ios.ja) · [한국어](/ios.ko)
 
-**Last updated: 7 October 2026**
+**Last updated: 8 October 2026**
 **Applies to: Vigatamala for iOS**
 
 ---
@@ -305,9 +305,13 @@ The app makes no other outbound connections.
   frequently-visited list to whoever is holding the phone. Once you type, it
   still matches (entirely on device). To turn off that half too, see
   Settings → Privacy → "No local suggestions in private tabs".
-- **While any private tab is open, the multitasking preview is covered.** iOS
-  takes a full-screen snapshot of its own when an app goes to the background;
-  we cover the screen before it does.
+- **If you leave the app while private content is on screen, the multitasking
+  preview is covered.** iOS takes a full-screen snapshot of its own when an app
+  goes to the background; before it does, we lay a blur over the screen. "On
+  screen" means the selected tab is a private tab, or you are looking at the list
+  of private tabs. Leaving the app from an ordinary tab does not cover it — even
+  with private tabs still open in the background, the snapshot shows only what is
+  on screen, and none of that is private.
 
 **Actions you take deliberately still leave traces:** adding a bookmark or saving
 to the reading list from a private tab writes that URL into the corresponding
