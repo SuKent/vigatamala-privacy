@@ -1,0 +1,35 @@
+# PTT 相容表（ptt/compat.json）有改動就簽章，產生 ptt/compat.json.sig2 並提交（2026-10-18）。
+# 私鑰同規則：repo Settings → Secrets → Actions 的 RULES_SIGNING_KEY。
+# 機器人的提交只改 .sig2，不會再觸發這個工作流程。
+name: PTT 相容表簽章
+
+on:
+  push:
+    branches: [main]
+    paths: ["ptt/compat.json"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ptt-compat
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: 檢查格式並簽章
+        env:
+          RULES_SIGNING_KEY: ${{ secrets.RULES_SIGNING_KEY }}
+        run: bash ptt/sign.sh
+      - name: 提交簽章
+        run: |
+          git config user.name "rules-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ptt/compat.json.sig2
+          git commit -m "PTT 相容表簽章 $(head -1 ptt/compat.json.sig2)"
+          git pull --rebase --autostash
+          git push

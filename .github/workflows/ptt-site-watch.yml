@@ -1,0 +1,55 @@
+# 每天比對 PTT 站方原始碼（github.com/ptt/pttbbs），App 用到的字或按鍵有變就開一張 issue（2026-10-18 使用者 Q24 A）。
+#
+# 為什麼要提早知道：2026-10-13 站方把選單與列表頁尾改寫放上 GitHub，正式站 10-17 晚～10-18 早才換上，
+# App 登入後讀信、進看板全卡住。原始碼比正式站早了約 4 天 —— 每天比一次就有時間先修好、送審。
+#
+# - ptt/watch/baseline.txt：上次比對過、確認 App 沒問題的站方版本。處理完 issue 後把新版本寫回來（App repo 的
+#   Docs/PTT-SITE-COMPAT.md「比對紀錄」也要記）。
+# - ptt/watch/anchors.json：App 用到的站方字串（App repo 的 `compare.py --export-anchors` 產生；App 改了比對的字就更新）。
+# - 只有第 1–3 項（字串、標題頁尾、按鍵表）有差異才開 issue；同一個站方版本只開一次。
+name: PTT 站方原始碼比對
+
+on:
+  schedule:
+    - cron: "0 22 * * *"   # 每日 22:00 UTC = 台北 06:00
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: 比對並在有差異時開 issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          base="$(tr -d '[:space:]' < ptt/watch/baseline.txt)"
+          set +e
+          python3 ptt/watch/compare.py "$base" master --anchors ptt/watch/anchors.json --exit-code > report.txt 2>&1
+          status=$?
+          set -e
+          cat report.txt
+          if [ "$status" -eq 0 ]; then echo "App 用到的字與按鍵沒有變化"; exit 0; fi
+          if [ "$status" -ne 1 ]; then echo "比對失敗（離開碼 $status）"; exit "$status"; fi
+          new="$(sed -n 's/.*→ 新：\([0-9a-f]*\).*/\1/p' report.txt | head -1)"
+          title="PTT 站方原始碼有變動：${new}"
+          if gh issue list --state all --search "\"${new}\" in:title" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "這個版本已經開過 issue"; exit 0
+          fi
+          {
+            echo "每日比對發現 App 用到的站方字串、標題頁尾或按鍵有變化（起點 \`${base}\`）。"
+            echo
+            echo "處理方式：在 App repo 跑 \`python3 Tools/ptt-compat/compare.py ${base}\` 逐項對照（Docs/PTT-SITE-COMPAT.md）。"
+            echo "只是換字的，可以先發布 ptt/compat.json 的換字（當天生效）；改了按鍵或流程的要改程式上架。"
+            echo "處理完把 ptt/watch/baseline.txt 改成新的版本。"
+            echo
+            echo '```'
+            head -c 60000 report.txt
+            echo '```'
+          } > body.md
+          gh issue create --title "$title" --body-file body.md
