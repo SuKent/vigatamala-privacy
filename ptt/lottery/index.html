@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 只准載入同一個網站的 verify.js 與 style.css；不連網、不能被別的網站拿來送表單。 -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>推文抽獎驗證</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="verify.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>推文抽獎驗證</h1>
+    <p class="lead">核對用 Vigatamala「推文抽獎」抽出來的結果：把整篇抽獎回文貼上，按「驗證」，
+      這一頁會照回文上的種子重算一次，跟回文上的中獎名單逐名比對。</p>
+    <p class="privacy">全部在你的瀏覽器裡計算，貼上的內容不會送到任何地方，也不會被儲存。</p>
+
+    <section>
+      <h2>貼上抽獎回文</h2>
+      <label for="reply">從【推文抽獎結果】到【驗證方式】整段複製貼上（PTT 網頁版或終端機複製都可以）：</label>
+      <textarea id="reply" rows="10" spellcheck="false" autocomplete="off" placeholder="【推文抽獎結果】&#10;…&#10;【驗證方式】&#10;種子：…"></textarea>
+      <div class="buttons">
+        <button id="verify-reply" type="button" class="primary">驗證</button>
+        <button id="clear-reply" type="button">清除</button>
+      </div>
+      <div id="reply-result" aria-live="polite"></div>
+    </section>
+
+    <section>
+      <h2>或手動輸入</h2>
+      <div class="fields">
+        <label>種子<input id="seed" type="text" autocomplete="off" spellcheck="false" placeholder="例如 3f9a0c1d2e4b5a69"></label>
+        <label>參加人數<input id="entries" type="number" min="1" inputmode="numeric" placeholder="編號 1～N 的 N"></label>
+        <label>中獎名額<input id="winners" type="number" min="1" inputmode="numeric"></label>
+      </div>
+      <div class="buttons"><button id="verify-manual" type="button" class="primary">算出中獎編號</button></div>
+      <div id="manual-result" aria-live="polite"></div>
+    </section>
+
+    <section class="explain">
+      <h2>怎麼算的</h2>
+      <ol>
+        <li>第 k 名：計算 SHA-256("種子-k")，例如第 1 名是 SHA-256("3f9a0c1d2e4b5a69-1")。</li>
+        <li>取結果的前 8 個位元組（前 16 個十六進位字）當成一個整數。</li>
+        <li>除以還沒中獎的人數，得到餘數 r。</li>
+        <li>還沒中獎的編號由小到大的第 r+1 個，就是第 k 名；接著算下一名。</li>
+      </ol>
+      <h2>這能證明什麼</h2>
+      <ul>
+        <li><strong>能</strong>：中獎名單確實是照回文上的種子與參加名單算出來的，沒有事後改名次或換人。</li>
+        <li><strong>不能</strong>：參加名單是不是跟文章的推文一致，請自己對照推文（回文寫了統計到第幾樓、怎麼算）；
+          也不能證明作者沒有抽好幾次只公布其中一次。</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
