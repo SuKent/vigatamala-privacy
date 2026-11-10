@@ -50,7 +50,10 @@
     //    ・Docs/RULES.md 記載的 CC BY-SA §4(b) share-alike 履行網址(/rules)
     //    所以檔案改名成 ios.zh-Hant.md 之後,這裡要把 /ios 轉成
     //    「依語言挑一份」而不是 404。順帶也讓一般訪客看到自己的語言。
-    const LOCALIZED_DOCS = ['/ios', '/rules'];
+    // /android(2026-11-10):Android 版的隱私政策,登記在 Google Play 管理中心的
+    // 隱私權政策與「刪除資料的網址」兩個欄位,也是 App 設定「關於」→「隱私政策」連的網址。
+    // 跟 /ios 一樣不可以消失。
+    const LOCALIZED_DOCS = ['/ios', '/android', '/rules'];
     const DOC_LANGS = ['zh-Hant', 'zh-Hans', 'en', 'ja', 'ko'];
 
     // 由瀏覽器語言挑一份。挑不到就回繁體中文(這個站的原始語言)。
