@@ -1,0 +1,291 @@
+/* 「民防準備」離線網頁。老人也會用為第一優先:字大(本文 19px)、按鈕至少 48px 高、顏色之外一定有字、深淺色都對比夠。
+   手冊封面的橘色(#E67647)只用在圖示與底色,當文字太淡(對白底 3:1),文字用深一點的 --civil-text。 */
+
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --label: #111111;
+  --secondary: #4a4a52;
+  --separator: #d7d7dc;
+  --civil: #e67647;
+  --civil-text: #a8400f;
+  --civil-soft: #fbe6dc;
+  --red: #c4141c;
+  --red-soft: #fde2e2;
+  --orange: #a85a00;
+  --orange-soft: #fff0d9;
+  --green: #1f8a3a;
+  --accent: #0a58c2;
+  --tone: #e67647;
+  --pause: #d7d7dc;
+  --voice: #7aa7e0;
+  --button: #e8e8ed;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --label: #f5f5f7;
+    --secondary: #b3b3bb;
+    --separator: #3a3a3e;
+    --civil: #ff8a5b;
+    --civil-text: #ff9c74;
+    --civil-soft: #3d2417;
+    --red: #ff6b6b;
+    --red-soft: #3d1416;
+    --orange: #ffb340;
+    --orange-soft: #3d2c0f;
+    --green: #4cd964;
+    --accent: #5ea2ff;
+    --tone: #ff8a5b;
+    --pause: #48484e;
+    --voice: #4f7cb8;
+    --button: #2c2c30;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--label);
+  font: 19px/1.6 -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", sans-serif;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; color: inherit; }
+.loading { text-align: center; padding: 80px 16px; color: var(--secondary); }
+
+/* 頂端:返回鍵有字、標題大 */
+.bar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 4px;
+  min-height: 60px;
+  padding: calc(env(safe-area-inset-top) + 6px) 12px 6px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--separator);
+}
+.bar h1 { margin: 0 8px; font-size: 24px; line-height: 1.3; font-weight: 700; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.back {
+  display: inline-flex; align-items: center; gap: 2px;
+  min-height: 48px; padding: 0 12px 0 4px;
+  border: 0; border-radius: 24px; background: var(--button);
+  font-size: 18px; font-weight: 600; color: var(--accent);
+  cursor: pointer; flex: none;
+}
+.back .icon { width: 26px; height: 26px; }
+
+.content { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(env(safe-area-inset-bottom) + 40px); }
+
+.icon { width: 24px; height: 24px; fill: currentColor; flex: none; }
+
+/* 卡片與一列 */
+.card { background: var(--card); border-radius: 18px; overflow: hidden; }
+.card.pad { padding: 16px; margin-bottom: 16px; }
+.card + .card { margin-top: 16px; }
+.row {
+  display: flex; align-items: center; gap: 14px;
+  min-height: 64px; padding: 12px 16px;
+  border-top: 1px solid var(--separator);
+}
+.card > .row:first-child, .card > :first-child .row:first-child { border-top: 0; }
+.link-row { cursor: pointer; }
+.link-row:active, .supply-link:active { background: var(--button); }
+.row-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex: none;
+  display: grid; place-items: center;
+}
+.row-icon .icon { width: 28px; height: 28px; }
+.row-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.row-title { font-size: 19px; line-height: 1.4; overflow-wrap: anywhere; }
+.row-title.small { font-size: 17px; }
+.row-sub { font-size: 16px; line-height: 1.45; color: var(--secondary); overflow-wrap: anywhere; }
+.row-sub.big { font-size: 18px; }
+.row-value { font-size: 16px; color: var(--secondary); text-align: right; flex: none; max-width: 40%; }
+.row-chevron { color: var(--secondary); width: 22px; height: 22px; opacity: .7; }
+.strong { font-weight: 700; }
+.center { text-align: center; }
+
+.tint-civil { color: var(--civil); }
+.row-icon.tint-civil { background: var(--civil-soft); }
+.tint-red { color: var(--red); }
+.row-icon.tint-red { background: var(--red-soft); }
+.tint-orange { color: var(--orange); }
+.row-icon.tint-orange { background: var(--orange-soft); }
+.tint-green { color: var(--green); }
+
+.section-header { margin: 28px 16px 8px; font-size: 18px; font-weight: 700; color: var(--secondary); }
+.footer { margin: 8px 16px 0; font-size: 16px; line-height: 1.5; color: var(--secondary); }
+.gap { height: 20px; }
+.intro { margin: 0 4px 8px; font-size: 18px; color: var(--secondary); }
+.empty { padding: 40px 16px; text-align: center; color: var(--secondary); }
+
+/* 按鈕:至少 48px 高,看得到的外框 */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 48px; padding: 0 18px;
+  border: 0; border-radius: 14px;
+  background: var(--button); color: var(--accent);
+  font-size: 18px; font-weight: 600; cursor: pointer;
+  flex: none;
+}
+.btn.wide { width: 100%; }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.danger { color: var(--red); }
+.btn.small { min-height: 44px; padding: 0 14px; font-size: 16px; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.chip { min-height: 52px; padding: 0 22px; border-radius: 26px; background: var(--card); }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 4px; }
+
+/* 加到主畫面 */
+.install {
+  margin-bottom: 16px; padding: 16px;
+  border-radius: 18px; background: var(--card);
+  border: 2px solid var(--civil);
+}
+.install-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; margin-bottom: 8px; }
+.install-title .icon { color: var(--civil); width: 28px; height: 28px; }
+.install p { margin: 6px 0 0; }
+.install-warn { font-size: 16px; color: var(--secondary); }
+.install-app { margin-top: 12px; }
+.install-or { padding-top: 12px; margin-top: 14px !important; border-top: 1px solid var(--separator); font-weight: 600; }
+
+/* 提醒 */
+.notice {
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 10px;
+  margin-bottom: 16px; padding: 14px 16px;
+  border-radius: 16px; background: var(--orange-soft);
+}
+.notice p { margin: 0; grid-column: 2; font-size: 17px; }
+.notice-icon { color: var(--orange); width: 26px; height: 26px; }
+.notice-error { color: var(--red); font-weight: 600; }
+.notice.error { background: var(--red-soft); grid-template-columns: 1fr; }
+.notice.error p { grid-column: 1; color: var(--red); font-weight: 600; }
+
+/* 到期提示:最上面、紅橘、點了到那個品項 */
+.expiry { margin-bottom: 20px; }
+.expiry-counts p { display: flex; align-items: center; gap: 8px; margin: 0 16px 6px; font-weight: 700; font-size: 20px; }
+.expiry .card { background: var(--orange-soft); }
+.expiry.has-expired .card { background: var(--red-soft); }
+
+/* 警報 */
+.alarm { display: flex; flex-direction: column; gap: 12px; }
+.guide .alarm { padding: 4px 0; }
+.alarm-head { display: flex; align-items: center; gap: 14px; }
+.btn.play { min-width: 92px; background: var(--civil); color: #fff; font-size: 19px; }
+.btn.play.stop { background: var(--red); }
+.pattern { position: relative; display: flex; gap: 2px; height: 22px; border-radius: 6px; overflow: hidden; }
+.seg { flex-basis: 0; min-width: 1px; }
+.seg-tone { background: var(--tone); }
+.seg-pause { background: var(--pause); }
+.seg-voice { background: var(--voice); }
+.pattern-progress { position: absolute; top: 0; bottom: 0; left: 0; width: 3px; background: var(--label); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 15px; color: var(--secondary); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { display: inline-block; width: 16px; height: 12px; border-radius: 3px; }
+.alarm-rule { margin: 0; font-size: 17px; }
+.alarm-actions summary { min-height: 48px; display: flex; align-items: center; font-weight: 600; color: var(--accent); cursor: pointer; }
+.alarm-actions ol { margin: 0; padding-left: 1.6em; }
+.alarm-actions li { margin: 4px 0; }
+
+/* 指引 */
+.guide-title { margin: 28px 8px 10px; font-size: 22px; line-height: 1.4; }
+.card.guide { padding: 6px 16px 10px; }
+.card.guide > * { margin: 12px 0; }
+.card.guide > .row { margin: 0 -16px; }
+.card.guide > .row:first-child { border-top: 0; }
+.block-text { margin: 0; }
+.block-list { margin: 0; padding-left: 1.4em; }
+.block-list li { margin: 6px 0; }
+.terms { margin: 0; }
+.terms dt { font-weight: 700; margin-top: 10px; }
+.terms dt:first-child { margin-top: 0; }
+.terms dd { margin: 2px 0 0; }
+.group-title { margin: 0; font-weight: 700; }
+.group-sub { margin: 0; font-size: 16px; color: var(--secondary); }
+.warning {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--red-soft); color: var(--red); font-weight: 700;
+}
+.warning .icon { margin-top: 3px; }
+.radio > div { margin: 10px 0; }
+.radio p { margin: 0; }
+
+/* 物資 */
+.principle { align-items: flex-start; font-size: 17px; }
+.principle .icon { margin-top: 3px; }
+.check-row { flex-wrap: wrap; }
+.supply-row { padding: 0; gap: 0; }
+.check {
+  width: 64px; align-self: stretch; min-height: 72px;
+  display: grid; place-items: center;
+  border: 0; background: none; cursor: pointer; color: var(--secondary); flex: none;
+}
+.check .icon { width: 32px; height: 32px; }
+.check.on { color: var(--green); }
+.supply-link { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; padding: 12px 16px 12px 0; min-height: 72px; }
+.badge { font-size: 16px; }
+.add-row input, .row > input[type="text"], .row > input[type="tel"], .contact input {
+  flex: 1; min-width: 0; min-height: 48px; padding: 8px 12px;
+  border: 1px solid var(--separator); border-radius: 12px; background: var(--bg);
+  font-size: 18px;
+}
+.add-row { flex-wrap: wrap; }
+.toggle-row { cursor: pointer; justify-content: space-between; }
+.switch { width: 30px; height: 30px; accent-color: var(--green); flex: none; }
+.date {
+  min-height: 48px; padding: 6px 12px; margin-left: auto;
+  border: 1px solid var(--separator); border-radius: 12px; background: var(--bg);
+  font-size: 18px;
+}
+.batch { flex-direction: column; align-items: stretch; gap: 10px; }
+.batch-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.batch-line .date { margin-left: 0; }
+.batch-line .row-sub { flex: 1; }
+.stepper { display: inline-flex; gap: 8px; }
+.btn.step { width: 52px; padding: 0; font-size: 24px; }
+
+/* 專線 */
+.hotline { gap: 12px; }
+.hotline .row-title { flex: 1; }
+.hotline-number { font-size: 26px; font-weight: 800; color: var(--civil-text); letter-spacing: .02em; }
+.hotline .row-icon { width: 40px; height: 40px; }
+
+/* 會合地點 */
+.contact { flex-direction: column; align-items: stretch; gap: 8px; }
+.contact-phone { display: flex; gap: 8px; }
+.btn.dial { width: 56px; padding: 0; color: var(--green); }
+.contact .btn.danger { align-self: flex-end; }
+
+/* 避難地圖 */
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.shot { display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--secondary); }
+.shot-thumb { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 14px; background: var(--card); }
+.shot-full { background: var(--card); border-radius: 18px; overflow: hidden; }
+.shot-image { display: block; width: 100%; height: auto; }
+.missing { display: grid; place-items: center; padding: 20px; color: var(--secondary); }
+
+/* 頁尾 */
+.attribution { margin: 28px 16px 0; font-size: 15px; line-height: 1.55; color: var(--secondary); }
+.attribution p { margin: 0 0 6px; }
+.about { margin: 20px 16px 0; font-size: 15px; line-height: 1.55; color: var(--secondary); }
+.about p { margin: 0 0 10px; }
+.offline-ok { display: flex; gap: 8px; align-items: center; color: var(--green); font-weight: 600; }
+.lang { display: flex; align-items: center; gap: 10px; font-size: 17px; color: var(--label); }
+.lang select { min-height: 48px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--separator); background: var(--card); font-size: 17px; }
+
+.store-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.app-row { align-items: flex-start; }
+
+@media print {
+  .bar, .install, .btn, .about { display: none; }
+  body { background: #fff; }
+}
+
+/* 頁面最上面就是段落標題時,不用再空那麼多 */
+.content > .section-header:first-child { margin-top: 8px; }

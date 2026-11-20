@@ -1,0 +1,16 @@
+{
+  "name": "民防準備",
+  "short_name": "民防準備",
+  "description": "物資清單、官方警報聲、災害應對與傷患處理、緊急專線、家人會合地點。沒有網路也能打開。",
+  "lang": "zh-TW",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#E67647",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
